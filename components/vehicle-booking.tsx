@@ -197,16 +197,16 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a]"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      {/* Header card */}
-      <header className="rounded-lg border border-[#a3cfbb] bg-[#d1e7dd] px-5 py-4 shadow-sm">
+      {/* Header card：框線加粗為 border-2 */}
+      <header className="rounded-lg border-2 border-[#a3cfbb] bg-[#d1e7dd] px-5 py-4 shadow-sm">
         <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
         <p className="mt-1 text-xs text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* License plate banner */}
-      <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md">
+      {/* License plate banner：框線加粗為 border-2 */}
+      <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border-2 border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md">
         <div className="flex flex-1 flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2">
             <span className="text-base font-extrabold tracking-wide text-[#39ff14]">
@@ -225,8 +225,8 @@ export function VehicleBooking() {
         />
       </div>
 
-      {/* Calendar */}
-      <section className="overflow-hidden rounded-xl border border-[#c5e1a5] bg-[#e2f0d9] p-3 shadow-2xl">
+      {/* Calendar 外框：外框加粗為 border-2 */}
+      <section className="overflow-hidden rounded-xl border-2 border-[#c5e1a5] bg-[#e2f0d9] p-3 shadow-2xl">
         {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5">
           <button
@@ -248,13 +248,13 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* Weekday header */}
+        {/* Weekday header：星期六日文字顏色修改為紅色 text-rose-500，其餘格線加粗 border-r-2 */}
         <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-semibold text-white">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`border-r border-white/10 py-1.5 last:border-r-0 ${
-                i === 5 || i === 6 ? "font-extrabold text-orange-400" : "text-white"
+              className={`border-r-2 border-white/10 py-1.5 last:border-r-0 ${
+                i === 5 || i === 6 ? "font-extrabold text-rose-500 bg-white/5" : "text-white"
               }`}
             >
               {w}
@@ -289,11 +289,11 @@ export function VehicleBooking() {
             return (
               <div
                 key={`${year}-${month}-${day}`}
-                className={`relative flex min-h-[110px] flex-col overflow-hidden rounded-md border transition-all duration-200 ease-out
+                className={`relative flex min-h-[110px] flex-col overflow-hidden rounded-md border-2 transition-all duration-200 ease-out
                   hover:-translate-y-[2px] hover:shadow-md hover:z-10
                   ${
                     isToday
-                      ? "border-blue-600 ring-2 ring-blue-600/50 z-10"
+                      ? "border-blue-600 ring-2 ring-blue-600/30 z-10"
                       : booked
                         ? "border-amber-500"
                         : isOff
@@ -303,7 +303,7 @@ export function VehicleBooking() {
                   ${isOff ? "bg-rose-100/70" : "bg-white"}`}
               >
                 {/* 日曆格日期橫條 */}
-                <div className={`px-1 pt-0.5 pb-0.5 ${isOff ? "bg-rose-200/50" : "bg-slate-100/80"}`}>
+                <div className={`px-1 pt-0.5 pb-0.5 border-b-2 ${isOff ? "bg-rose-200/50 border-rose-200" : "bg-slate-100/80 border-slate-200"}`}>
                   <div className="flex flex-col items-center">
                     <span className={`text-sm font-bold ${isOff ? "text-rose-600" : "text-slate-800"}`}>
                       {day}
@@ -313,8 +313,6 @@ export function VehicleBooking() {
                     {holiday ?? ""}
                   </span>
                 </div>
-
-                <div className="h-px bg-slate-200" />
 
                 {/* AM / PM Slots */}
                 <div className={`flex flex-1 flex-col ${isOff ? "bg-rose-50/30" : "bg-white"}`}>
@@ -344,10 +342,10 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* Modal 彈窗 */}
+      {/* Modal 彈窗：框線加粗為 border-2 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-lg border border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-xs rounded-lg border-2 border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="flex items-center gap-1.5 text-base font-bold text-[#0f5132]">
                 {pending.kind === "book" ? (
@@ -389,7 +387,7 @@ export function VehicleBooking() {
                           setBookMode(m)
                           setError(false)
                         }}
-                        className={`rounded-md border py-2 text-sm font-semibold transition-colors ${
+                        className={`rounded-md border-2 py-2 text-sm font-semibold transition-colors ${
                           disabled
                             ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
                             : selected
@@ -413,10 +411,10 @@ export function VehicleBooking() {
                     setError(false)
                   }}
                   placeholder="請輸入姓名"
-                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
+                  className="mt-3 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132]"
                 />
 
-                {/* 目的地輸入框：已精簡提示字 */}
+                {/* 目的地輸入框 */}
                 <input
                   type="text"
                   value={destinationInput}
@@ -426,7 +424,7 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入目的地"
-                  className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
+                  className="mt-2 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132]"
                 />
 
                 {error && <p className="mt-1.5 text-xs font-medium text-rose-600">姓名與目的地皆為必填！</p>}
@@ -448,7 +446,7 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入密碼"
-                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-lg tracking-[0.4em] text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
+                  className="mt-3 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-lg tracking-[0.4em] text-[#0f5132] outline-none focus:border-[#0f5132]"
                 />
                 {error && <p className="mt-1.5 text-xs font-medium text-rose-600">密碼錯誤，請重新輸入。</p>}
               </>
@@ -458,7 +456,7 @@ export function VehicleBooking() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                className="flex-1 rounded-md border-2 border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
               >
                 關閉
               </button>
