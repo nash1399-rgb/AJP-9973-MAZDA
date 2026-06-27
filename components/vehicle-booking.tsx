@@ -19,11 +19,11 @@ const PASSCODE = "1234"
 
 type Slot = "am" | "pm"
 type BookMode = "am" | "pm" | "full"
-type BookingInfo = { name: string; destination: string; docId: string }
+type BookingInfo = { name: string; docId: string }
 
 type Pending =
   | { kind: "book"; day: number }
-  | { kind: "cancel"; day: number; slot: Slot; name: string; destination: string }
+  | { kind: "cancel"; day: number; slot: Slot; name: string }
 
 export function VehicleBooking() {
   const [year, setYear] = useState(2026)
@@ -33,7 +33,6 @@ export function VehicleBooking() {
   const [pending, setPending] = useState<Pending | null>(null)
   const [bookMode, setBookMode] = useState<BookMode>("am")
   const [nameInput, setNameInput] = useState("")
-  const [destinationInput, setDestinationInput] = useState("") 
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
 
@@ -49,7 +48,6 @@ export function VehicleBooking() {
         const key = `${v.year}-${v.month}-${v.day}-${v.slot}`
         data[key] = { 
           name: v.name, 
-          destination: v.destination || "", 
           docId: d.id 
         }
       })
@@ -80,10 +78,7 @@ export function VehicleBooking() {
     return bookings[keyOf(day, slot)]?.name || ""
   }
 
-  function destinationOf(day: number, slot: Slot) {
-    return bookings[keyOf(day, slot)]?.destination || ""
-  }
-
+  // 移除 destinationOf
   function docIdOf(day: number, slot: Slot) {
     return bookings[keyOf(day, slot)]?.docId || ""
   }
@@ -102,6 +97,7 @@ export function VehicleBooking() {
     setMonth(m)
   }
 
+  // 左右滑動切換月份
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
   }
@@ -115,7 +111,6 @@ export function VehicleBooking() {
 
   function requestBook(day: number, defaultSlot: Slot) {
     setNameInput("")
-    setDestinationInput("") 
     setError(false)
     setBookMode(defaultSlot)
     setPending({ kind: "book", day })
@@ -124,8 +119,7 @@ export function VehicleBooking() {
   function requestCancel(day: number, slot: Slot, name: string) {
     setCode("")
     setError(false)
-    const dest = destinationOf(day, slot)
-    setPending({ kind: "cancel", day, slot, name, destination: dest })
+    setPending({ kind: "cancel", day, slot, name })
   }
 
   async function confirm() {
@@ -133,9 +127,8 @@ export function VehicleBooking() {
     try {
       if (pending.kind === "book") {
         const name = nameInput.trim()
-        const destination = destinationInput.trim() 
         
-        if (!name || !destination) { 
+        if (!name) { 
           setError(true)
           return
         }
@@ -144,14 +137,14 @@ export function VehicleBooking() {
         if ((bookMode === "am" || bookMode === "full") && !bookerOf(pending.day, "am")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year, month, day: pending.day, slot: "am", name, destination, createdAt: Date.now(),
+              year, month, day: pending.day, slot: "am", name, createdAt: Date.now(),
             })
           )
         }
         if ((bookMode === "pm" || bookMode === "full") && !bookerOf(pending.day, "pm")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year, month, day: pending.day, slot: "pm", name, destination, createdAt: Date.now(),
+              year, month, day: pending.day, slot: "pm", name, createdAt: Date.now(),
             })
           )
         }
@@ -185,19 +178,18 @@ export function VehicleBooking() {
   function closeModal() {
     setPending(null)
     setNameInput("")
-    setDestinationInput("")
     setCode("")
     setError(false)
   }
 
-  const monthBookerDetail = pending?.kind === "cancel" ? `${pending.name} (📍 ${pending.destination})` : ""
+  const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
 
   return (
     <div 
       className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a]"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      {/* Header card：框線加粗為 border-2 */}
+      {/* Header card */}
       <header className="rounded-lg border-2 border-[#a3cfbb] bg-[#d1e7dd] px-5 py-4 shadow-sm">
         <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
@@ -205,7 +197,7 @@ export function VehicleBooking() {
         <p className="mt-1 text-xs text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* License plate banner：框線加粗為 border-2 */}
+      {/* License plate banner */}
       <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border-2 border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md">
         <div className="flex flex-1 flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2">
@@ -225,7 +217,7 @@ export function VehicleBooking() {
         />
       </div>
 
-      {/* Calendar 外框：外框加粗為 border-2 */}
+      {/* Calendar */}
       <section className="overflow-hidden rounded-xl border-2 border-[#c5e1a5] bg-[#e2f0d9] p-3 shadow-2xl">
         {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5">
@@ -248,7 +240,7 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* Weekday header：星期六日文字顏色修改為紅色 text-rose-500，其餘格線加粗 border-r-2 */}
+        {/* Weekday header */}
         <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-semibold text-white">
           {WEEKDAYS.map((w, i) => (
             <div
@@ -282,8 +274,6 @@ export function VehicleBooking() {
             const isOff = weekend || !!holiday
             const am = bookerOf(day, "am")
             const pm = bookerOf(day, "pm")
-            const amDest = destinationOf(day, "am")
-            const pmDest = destinationOf(day, "pm")
             const booked = !!am || !!pm
             
             return (
@@ -319,7 +309,6 @@ export function VehicleBooking() {
                   <SlotArea
                     label="上午"
                     booker={am}
-                    destination={amDest}
                     onBook={() => requestBook(day, "am")}
                     onCancel={() => requestCancel(day, "am", am)}
                   />
@@ -327,7 +316,6 @@ export function VehicleBooking() {
                   <SlotArea
                     label="下午"
                     booker={pm}
-                    destination={pmDest}
                     onBook={() => requestBook(day, "pm")}
                     onCancel={() => requestCancel(day, "pm", pm)}
                   />
@@ -342,7 +330,7 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* Modal 彈窗：框線加粗為 border-2 */}
+      {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={closeModal}>
           <div className="w-full max-w-xs rounded-lg border-2 border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -368,7 +356,7 @@ export function VehicleBooking() {
             {pending.kind === "book" ? (
               <>
                 <p className="mt-2 text-sm text-slate-600">
-                  預約 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段、輸入姓名與目的地。
+                  預約 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
                 </p>
 
                 <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -410,30 +398,18 @@ export function VehicleBooking() {
                     setNameInput(e.target.value)
                     setError(false)
                   }}
+                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入姓名"
                   className="mt-3 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132]"
                 />
 
-                {/* 目的地輸入框 */}
-                <input
-                  type="text"
-                  value={destinationInput}
-                  onChange={(e) => {
-                    setDestinationInput(e.target.value)
-                    setError(false)
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
-                  placeholder="請輸入目的地"
-                  className="mt-2 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132]"
-                />
-
-                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">姓名與目的地皆為必填！</p>}
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">請輸入姓名！</p>}
               </>
             ) : (
               <>
                 <p className="mt-2 text-sm text-slate-600">
                   取消 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段的預約：<br />
-                  <span className="font-semibold text-amber-800">{monthBookerDetail}</span>，請輸入管制密碼。
+                  <span className="font-semibold text-amber-800">{monthBookerName}</span>，請輸入管制密碼。
                 </p>
                 <input
                   type="password"
@@ -482,13 +458,11 @@ export function VehicleBooking() {
 function SlotArea({
   label,
   booker,
-  destination,
   onBook,
   onCancel,
 }: {
   label: string
   booker: string
-  destination: string
   onBook: () => void
   onCancel: () => void
 }) {
@@ -498,7 +472,7 @@ function SlotArea({
       type="button"
       onClick={active ? onCancel : onBook}
       aria-pressed={active}
-      aria-label={active ? `${label} 已由 ${booker} 預約至 ${destination}，點擊取消` : `預約 ${label}`}
+      aria-label={active ? `${label} 已由 ${booker} 預約，點擊取消` : `預約 ${label}`}
       className={`flex flex-1 flex-col items-center justify-center px-0.5 py-1 text-xs font-semibold transition-colors ${
         active
           ? "bg-amber-100 text-amber-800 hover:bg-amber-200/70"
@@ -511,11 +485,6 @@ function SlotArea({
           <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-800">
             {booker}
           </span>
-          {destination && (
-            <span className="w-full truncate px-0.5 text-center text-[9px] font-medium text-slate-500 scale-90">
-              📍{destination}
-            </span>
-          )}
         </div>
       ) : (
         <span className="text-[10px] text-slate-400 font-normal py-1.5">空</span>
