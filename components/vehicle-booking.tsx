@@ -476,28 +476,23 @@ function SlotArea({
 }) {
   const active = !!booker
   return (
-  <button
-  type="button"
-  onClick={active ? onCancel : onBook}
-  className={`relative flex flex-1 flex-col items-start justify-center gap-0.5 px-2 py-1 text-xs font-semibold transition-colors ${
-    active
-      ? "text-slate-800 hover:bg-slate-50"
-      : "text-emerald-700 hover:bg-slate-50"
-  }`}
->
-  {active && (
-    <span className="absolute left-0 top-0 h-full w-1 bg-amber-400" />
-  )}
-
-  <span className="text-[9px] opacity-60">{label}</span>
-
-  {active ? (
-    <span className="truncate text-[11px] font-semibold text-left">
-      {booker}
-    </span>
-  ) : (
-    <span className="text-[10px] text-slate-300">空</span>
-  )}
-</button>
+    <button
+      type="button"
+      onClick={active ? onCancel : onBook}
+      aria-pressed={active}
+      aria-label={active ? `${label} 已由 ${booker} 預約，點擊取消` : `預約 ${label}`}
+      className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1.5 text-xs font-semibold transition-colors ${
+        active
+          ? "bg-[var(--vb-orange-soft)] text-[var(--vb-orange)]"
+          : "text-[var(--vb-green-deep)] hover:bg-white/50"
+      }`}
+    >
+      <span className="shrink-0 text-[10px] opacity-70">{label}</span>
+      {active && (
+        <span className="w-full break-words px-0.5 text-center text-[11px] font-bold leading-tight">
+          {booker}
+        </span>
+      )}
+    </button>
   )
 }
