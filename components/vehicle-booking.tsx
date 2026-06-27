@@ -14,7 +14,7 @@ import {
   orderBy,
 } from "firebase/firestore"
 
-const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"]
+const WEEKDAYS = [ "一", "二", "三", "四", "五", "六","日"]
 const PASSCODE = "1234"
 
 type Slot = "am" | "pm"
@@ -54,7 +54,7 @@ export function VehicleBooking() {
   }, [])
 
   const { firstWeekday, daysInMonth } = useMemo(() => {
-    const first = new Date(year, month - 1, 1).getDay()
+    const first = (new Date(year, month - 1, 1).getDay() + 6) % 7
     const total = new Date(year, month, 0).getDate()
     return { firstWeekday: first, daysInMonth: total }
   }, [year, month])
@@ -179,7 +179,7 @@ export function VehicleBooking() {
 
   return (
     // 這裡強制加上 bg-slate-50，避免外部環境（如深色模式切換）導致全黑
-    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 bg-slate-50 text-slate-800 min-h-screen">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen vb-dots text-slate-100">
       
       {/* Header card */}
       <header className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm">
@@ -210,7 +210,7 @@ export function VehicleBooking() {
       </div>
 
       {/* Calendar */}
-      <section className="overflow-hidden rounded-xl border-4 border-slate-200 bg-white p-3 shadow-lg ring-1 ring-black/5">
+      <section className="overflow-hidden rounded-xl border-4 border-slate-800 bg-slate-900 p-3 shadow-lg ring-1 ring-black/20">
         
         {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-2.5 shadow-inner">
@@ -238,9 +238,11 @@ export function VehicleBooking() {
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`border-r border-white/15 py-1.5 last:border-r-0 ${
-                i === 0 || i === 6 ? "font-extrabold text-orange-400" : "text-white"
-              }`}
+             className={`border-r border-white/15 py-1.5 last:border-r-0 ${
+  i === 5 || i === 6
+    ? "font-extrabold text-orange-400"
+    : "text-white"
+}`}
             >
               {w}
             </div>
@@ -251,7 +253,7 @@ export function VehicleBooking() {
         <div className="mt-2 grid grid-cols-7 gap-1.5" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
-            const weekend = col === 0 || col === 6
+            const weekend = col === 5 || col === 6
             if (day === null) return <div key={idx} className="min-h-[110px]" aria-hidden="true" />
             
             const holiday = getHolidayName(year, month, day)
