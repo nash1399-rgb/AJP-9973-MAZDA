@@ -1,5 +1,8 @@
 "use client"
 
+import { useEffect, useMemo, useRef, useState } from "react"
+import { Fuel, ChevronLeft, ChevronRight, Lock, User, X } from "lucide-react"
+import { getHolidayName } from "@/lib/holidays"
 import { db } from "@/lib/firebase"
 import {
   collection,
@@ -10,15 +13,13 @@ import {
   query,
   orderBy,
 } from "firebase/firestore"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { Fuel, ChevronLeft, ChevronRight, Lock, User, X } from "lucide-react"
-import { getHolidayName } from "@/lib/holidays"
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"]
 const PASSCODE = "1234"
 
 type Slot = "am" | "pm"
 type BookMode = "am" | "pm" | "full"
+type BookingInfo = { name: string; docId: string }
 
 type Pending =
   | { kind: "book"; day: number }
@@ -27,8 +28,7 @@ type Pending =
 export function VehicleBooking() {
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(6)
-
-  const [bookings, setBookings] = useState<Record<string, string>>({})
+  const [bookings, setBookings] = useState<Record<string, BookingInfo>>({})
 
   const [pending, setPending] = useState<Pending | null>(null)
   const [bookMode, setBookMode] = useState<BookMode>("am")
@@ -38,27 +38,18 @@ export function VehicleBooking() {
 
   const touchStartX = useRef<number | null>(null)
 
-  // =========================
-  // 🔥 Firestore Sync
-  // =========================
+  // Firebase Realtime Sync
   useEffect(() => {
-    const q = query(
-      collection(db, "vehicle_bookings"),
-      orderBy("createdAt", "desc")
-    )
-
+    const q = query(collection(db, "vehicle_bookings"), orderBy("createdAt", "desc"))
     const unsub = onSnapshot(q, (snap) => {
-      const data: Record<string, string> = {}
-
+      const data: Record<string, BookingInfo> = {}
       snap.docs.forEach((d) => {
         const v = d.data()
         const key = `${v.year}-${v.month}-${v.day}-${v.slot}`
-        data[key] = v.name
+        data[key] = { name: v.name, docId: d.id }
       })
-
       setBookings(data)
     })
-
     return () => unsub()
   }, [])
 
@@ -81,21 +72,23 @@ export function VehicleBooking() {
   }
 
   function bookerOf(day: number, slot: Slot) {
-    return bookings[keyOf(day, slot)] || ""
+    return bookings[keyOf(day, slot)]?.name || ""
+  }
+
+  function docIdOf(day: number, slot: Slot) {
+    return bookings[keyOf(day, slot)]?.docId || ""
   }
 
   function changeMonth(delta: number) {
     let m = month + delta
     let y = year
-
     if (m < 1) {
       m = 12
-      y--
+      y -= 1
     } else if (m > 12) {
       m = 1
-      y++
+      y += 1
     }
-
     setYear(y)
     setMonth(m)
   }
@@ -111,95 +104,67 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
-  function requestBook(day: number) {
-    setPending({ kind: "book", day })
+  function requestBook(day: number, defaultSlot: Slot) {
     setNameInput("")
     setError(false)
+    setBookMode(defaultSlot)
+    setPending({ kind: "book", day })
   }
 
   function requestCancel(day: number, slot: Slot, name: string) {
-    setPending({ kind: "cancel", day, slot, name })
     setCode("")
     setError(false)
+    setPending({ kind: "cancel", day, slot, name })
   }
 
-  // =========================
-  // 🔥 MAIN ACTION
-  // =========================
   async function confirm() {
     if (!pending) return
-
     try {
-      // ================= BOOK =================
       if (pending.kind === "book") {
         const name = nameInput.trim()
         if (!name) {
           setError(true)
           return
         }
-
         const tasks: Promise<any>[] = []
-
-        if (bookMode === "am" || bookMode === "full") {
+        if ((bookMode === "am" || bookMode === "full") && !bookerOf(pending.day, "am")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year,
-              month,
-              day: pending.day,
-              slot: "am",
-              name,
-              createdAt: Date.now(),
+              year, month, day: pending.day, slot: "am", name, createdAt: Date.now(),
             })
           )
         }
-
-        if (bookMode === "pm" || bookMode === "full") {
+        if ((bookMode === "pm" || bookMode === "full") && !bookerOf(pending.day, "pm")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year,
-              month,
-              day: pending.day,
-              slot: "pm",
-              name,
-              createdAt: Date.now(),
+              year, month, day: pending.day, slot: "pm", name, createdAt: Date.now(),
             })
           )
         }
-
         await Promise.all(tasks)
-      }
-
-      // ================= CANCEL =================
-      if (pending.kind === "cancel") {
+      } else {
         if (code !== PASSCODE) {
           setError(true)
           return
         }
+        const amName = bookerOf(pending.day, "am")
+        const pmName = bookerOf(pending.day, "pm")
+        const amId = docIdOf(pending.day, "am")
+        const pmId = docIdOf(pending.day, "pm")
 
-        // 找到要刪的 doc
-        const targetKey = `${year}-${month}-${pending.day}-${pending.slot}`
-
-        const q = query(collection(db, "vehicle_bookings"))
-        const snap = await new Promise<any>((resolve) => {
-          const unsub = onSnapshot(q, (s) => {
-            unsub()
-            resolve(s)
-          })
-        })
-
-        const target = snap.docs.find((d: any) => {
-          const v = d.data()
-          return `${v.year}-${v.month}-${v.day}-${v.slot}` === targetKey
-        })
-
-        if (target) {
-          await deleteDoc(doc(db, "vehicle_bookings", target.id))
+        const deleteTasks: Promise<void>[] = []
+        if (amName && pmName && amName === pmName) {
+          if (amId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", amId)))
+          if (pmId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", pmId)))
+        } else {
+          const targetDocId = docIdOf(pending.day, pending.slot)
+          if (targetDocId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", targetDocId)))
         }
+        await Promise.all(deleteTasks)
       }
-
       closeModal()
     } catch (err) {
-      console.error(err)
+      console.error("Firebase 操作失敗:", err)
     }
   }
 
@@ -210,97 +175,292 @@ export function VehicleBooking() {
     setError(false)
   }
 
-  const monthBookerName =
-    pending?.kind === "cancel" ? pending.name : ""
+  const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4">
-
-      {/* HEADER */}
-      <header className="rounded-lg border bg-white px-5 py-4 shadow-sm">
-        <h1 className="text-lg font-bold">公務車預約系統</h1>
+    // 這裡強制加上 bg-slate-50，避免外部環境（如深色模式切換）導致全黑
+    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 bg-slate-50 text-slate-800 min-h-screen">
+      
+      {/* Header card */}
+      <header className="rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm">
+        <h1 className="text-balance text-lg font-bold text-emerald-800">
+          邑菖工程顧問有限公司－公務車預約系統
+        </h1>
+        <p className="mt-1 text-xs text-slate-500">線上即時預約的登記平台</p>
       </header>
 
-      {/* CALENDAR */}
-      <section className="rounded-xl border bg-white p-3">
-
-        <div className="flex justify-between">
-          <button onClick={() => changeMonth(-1)}>
-            <ChevronLeft />
-          </button>
-
-          <div className="font-bold">
-            {year} / {month}
+      {/* License plate banner + vehicle info */}
+      <div className="flex items-stretch gap-3 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-800 p-3 text-white shadow-inner">
+        <div className="flex flex-1 flex-col justify-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-base font-extrabold tracking-wide">
+              AJP-9973（95無鉛汽油）
+            </span>
+            <Fuel className="size-5 shrink-0 text-orange-300" aria-hidden="true" />
           </div>
+          <div className="text-xs font-semibold opacity-90">下次保養里程數 129526 公里</div>
+          <div className="text-xs font-semibold opacity-90">下次汽車檢驗日期 2026 年 12 月 27 日</div>
+          <div className="text-[11px] leading-tight opacity-80">保養廠：祥盛汽車-新竹市東區復興里經國路一段 388 之 3 號，電話：03-5353897</div>
+        </div>
+        <img
+          src="/images/ajp-9973.jpg"
+          alt="公務車照片"
+          className="w-1/4 shrink-0 self-center rounded-md object-cover bg-emerald-700 min-h-[60px]"
+        />
+      </div>
 
-          <button onClick={() => changeMonth(1)}>
-            <ChevronRight />
+      {/* Calendar */}
+      <section className="overflow-hidden rounded-xl border-4 border-slate-200 bg-white p-3 shadow-lg ring-1 ring-black/5">
+        
+        {/* Calendar header */}
+        <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-2.5 shadow-inner">
+          <button
+            type="button"
+            onClick={() => changeMonth(-1)}
+            className="flex size-9 items-center justify-center rounded-md bg-white/15 text-white transition-colors hover:bg-white/30"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+          <span className="select-none font-mono text-lg font-extrabold tracking-wide text-white">
+            {year} 年 {month} 月
+          </span>
+          <button
+            type="button"
+            onClick={() => changeMonth(1)}
+            className="flex size-9 items-center justify-center rounded-md bg-white/15 text-white transition-colors hover:bg-white/30"
+          >
+            <ChevronRight className="size-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 text-center text-sm font-bold mt-2">
-          {WEEKDAYS.map((d) => (
-            <div key={d}>{d}</div>
+        {/* Weekday header */}
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-emerald-800 text-center text-sm font-semibold text-white">
+          {WEEKDAYS.map((w, i) => (
+            <div
+              key={w}
+              className={`border-r border-white/15 py-1.5 last:border-r-0 ${
+                i === 0 || i === 6 ? "font-extrabold text-orange-400" : "text-white"
+              }`}
+            >
+              {w}
+            </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 mt-2" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-          {cells.map((day, i) => {
-            if (!day) return <div key={i} />
-
+        {/* Day grid */}
+        <div className="mt-2 grid grid-cols-7 gap-1.5" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          {cells.map((day, idx) => {
+            const col = idx % 7
+            const weekend = col === 0 || col === 6
+            if (day === null) return <div key={idx} className="min-h-[110px]" aria-hidden="true" />
+            
+            const holiday = getHolidayName(year, month, day)
+            const isOff = weekend || !!holiday
             const am = bookerOf(day, "am")
             const pm = bookerOf(day, "pm")
-
+            const booked = !!am || !!pm
+            
             return (
-              <div key={i} className="border p-1 text-xs">
+              <div
+                key={idx}
+                className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
+                  booked
+                    ? "border-amber-500 ring-1 ring-amber-500"
+                    : isOff
+                      ? "border-rose-200"
+                      : "border-slate-200"
+                } ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
+              >
+                {/* date header */}
+                <div className="px-1 pt-0.5 pb-0.5 bg-white/60">
+                  <span className={`block text-center text-sm font-bold leading-tight ${isOff ? "text-rose-600" : "text-emerald-800"}`}>
+                    {day}
+                  </span>
+                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500等">
+                    {holiday ?? ""}
+                  </span>
+                </div>
 
-                <div className="font-bold text-center">{day}</div>
+                <div className="h-px bg-slate-200" />
 
-                <button onClick={() => am ? requestCancel(day, "am", am) : requestBook(day)}>
-                  AM {am || "空"}
-                </button>
-
-                <button onClick={() => pm ? requestCancel(day, "pm", pm) : requestBook(day)}>
-                  PM {pm || "空"}
-                </button>
-
+                {/* AM / PM Slots */}
+                <div className="flex flex-1 flex-col bg-white">
+                  <SlotArea
+                    label="上午"
+                    booker={am}
+                    onBook={() => requestBook(day, "am")}
+                    onCancel={() => requestCancel(day, "am", am)}
+                  />
+                  <div className="h-px bg-slate-100" />
+                  <SlotArea
+                    label="下午"
+                    booker={pm}
+                    onBook={() => requestBook(day, "pm")}
+                    onCancel={() => requestCancel(day, "pm", pm)}
+                  />
+                </div>
               </div>
             )
           })}
         </div>
       </section>
 
-      {/* MODAL */}
+      <p className="py-2 text-center text-xs text-slate-400">
+        《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼》
+      </p>
+
+      {/* Modal */}
       {pending && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={closeModal}>
+          <div className="w-full max-w-xs rounded-lg border border-slate-200 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h2 className="flex items-center gap-1.5 text-base font-bold text-emerald-800">
+                {pending.kind === "book" ? (
+                  <>
+                    <User className="size-4" />
+                    預約登記
+                  </>
+                ) : (
+                  <>
+                    <Lock className="size-4" />
+                    取消預約
+                  </>
+                )}
+              </h2>
+              <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600">
+                <X className="size-5" />
+              </button>
+            </div>
 
             {pending.kind === "book" ? (
               <>
+                <p className="mt-2 text-sm text-slate-600">
+                  預約 <span className="font-bold text-emerald-700">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
+                </p>
+
+                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                  {(["am", "pm", "full"] as BookMode[]).map((m) => {
+                    const text = m === "am" ? "上午" : m === "pm" ? "下午" : "全天"
+                    const amTaken = !!bookerOf(pending.day, "am")
+                    const pmTaken = !!bookerOf(pending.day, "pm")
+                    const disabled = m === "full" ? amTaken || pmTaken : m === "am" ? amTaken : pmTaken
+                    const selected = bookMode === m
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => {
+                          setBookMode(m)
+                          setError(false)
+                        }}
+                        className={`rounded-md border py-2 text-sm font-semibold transition-colors ${
+                          disabled
+                            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                            : selected
+                              ? "border-amber-500 bg-amber-500 text-white"
+                              : "border-slate-200 bg-white text-emerald-800 hover:bg-slate-50"
+                        }`}
+                      >
+                        {text}
+                      </button>
+                    )
+                  })}
+                </div>
+
                 <input
+                  type="text"
+                  autoFocus
                   value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  placeholder="姓名"
+                  onChange={(e) => {
+                    setNameInput(e.target.value)
+                    setError(false)
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
+                  placeholder="請輸入姓名"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-emerald-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 />
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">請輸入姓名。</p>}
               </>
             ) : (
               <>
+                <p className="mt-2 text-sm text-slate-600">
+                  取消 <span className="font-bold text-emerald-700">{`${year}/${month}/${pending.day}`}</span> 時段（{monthBookerName}），請輸入管制密碼。
+                </p>
                 <input
+                  type="password"
+                  inputMode="numeric"
+                  autoFocus
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="密碼"
+                  onChange={(e) => {
+                    setCode(e.target.value)
+                    setError(false)
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
+                  placeholder="請輸入密碼"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-lg tracking-[0.4em] text-emerald-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 />
-                <div>取消 {monthBookerName}</div>
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">密碼錯誤，請重新輸入。</p>}
               </>
             )}
 
-            {error && <div className="text-red-500 text-sm">錯誤</div>}
-
-            <button onClick={confirm}>確認</button>
-            <button onClick={closeModal}>關閉</button>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="flex-1 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                關閉
+              </button>
+              <button
+                type="button"
+                onClick={confirm}
+                className={`flex-1 rounded-md py-2 text-sm font-semibold text-white shadow-sm ${
+                  pending.kind === "book"
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-rose-600 hover:bg-rose-700"
+                }`}
+              >
+                {pending.kind === "book" ? "確認預約" : "確認取消"}
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
+  )
+}
+
+function SlotArea({
+  label,
+  booker,
+  onBook,
+  onCancel,
+}: {
+  label: string
+  booker: string
+  onBook: () => void
+  onCancel: () => void
+}) {
+  const active = !!booker
+  return (
+    <button
+      type="button"
+      onClick={active ? onCancel : onBook}
+      className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-xs font-semibold transition-colors ${
+        active
+          ? "bg-amber-50 text-amber-700 hover:bg-amber-100/70"
+          : "text-emerald-700 hover:bg-slate-50"
+      }`}
+    >
+      <span className="shrink-0 text-[9px] opacity-60 leading-none">{label}</span>
+      {active ? (
+        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-900">
+          {booker}
+        </span>
+      ) : (
+        <span className="text-[10px] text-slate-300 font-normal">空</span>
+      )}
+    </button>
   )
 }
