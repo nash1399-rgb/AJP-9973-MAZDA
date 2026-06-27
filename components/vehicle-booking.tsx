@@ -302,9 +302,7 @@ ${
       {day}
     </span>
 
-    {isToday && (
-      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
-    )}
+   
   </div>
 
   <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500">
