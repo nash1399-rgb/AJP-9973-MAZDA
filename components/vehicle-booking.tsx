@@ -280,7 +280,7 @@ const isToday =
       key={`${year}-${month}-${day}`}
       className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
         isToday
-          ? "border-blue-600 ring-4 ring-blue-500"
+          ? "bg-blue-50 border-blue-300"
           : booked
             ? "border-amber-500 ring-1 ring-amber-500"
             : isOff
@@ -290,13 +290,22 @@ const isToday =
     >
                 {/* date header */}
                 <div className="px-1 pt-0.5 pb-0.5 bg-white/60">
-                  <span className={`block text-center text-sm font-bold leading-tight ${isOff ? "text-rose-600" : "text-emerald-800"}`}>
-                    {day}
-                  </span>
-                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500">
-                    {holiday ?? ""}
-                  </span>
-                </div>
+  
+  <div className="flex flex-col items-center">
+    <span className={`text-sm font-bold ${isOff ? "text-rose-600" : "text-slate-800"}`}>
+      {day}
+    </span>
+
+    {isToday && (
+      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
+    )}
+  </div>
+
+  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500">
+    {holiday ?? ""}
+  </span>
+
+</div>
 
                 <div className="h-px bg-slate-200" />
 
