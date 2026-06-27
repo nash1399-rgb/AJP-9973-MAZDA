@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Fuel, ChevronLeft, ChevronRight, Lock, User, X } from "lucide-react"
+import { Fuel, ChevronLeft, ChevronRight, Lock, User, X, MapPin } from "lucide-react"
 import { getHolidayName } from "@/lib/holidays"
 import { db } from "@/lib/firebase"
 import {
@@ -19,11 +19,12 @@ const PASSCODE = "1234"
 
 type Slot = "am" | "pm"
 type BookMode = "am" | "pm" | "full"
-type BookingInfo = { name: string; docId: string }
+// 擴充 BookingInfo 結構，除了名字也記錄目的地
+type BookingInfo = { name: string; destination: string; docId: string }
 
 type Pending =
   | { kind: "book"; day: number }
-  | { kind: "cancel"; day: number; slot: Slot; name: string }
+  | { kind: "cancel"; day: number; slot: Slot; name: string; destination: string }
 
 export function VehicleBooking() {
   const [year, setYear] = useState(2026)
@@ -33,6 +34,7 @@ export function VehicleBooking() {
   const [pending, setPending] = useState<Pending | null>(null)
   const [bookMode, setBookMode] = useState<BookMode>("am")
   const [nameInput, setNameInput] = useState("")
+  const [destinationInput, setDestinationInput] = useState("") // 🔥 新增：目的地輸入狀態
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
 
@@ -46,7 +48,11 @@ export function VehicleBooking() {
       snap.docs.forEach((d) => {
         const v = d.data()
         const key = `${v.year}-${v.month}-${v.day}-${v.slot}`
-        data[key] = { name: v.name, docId: d.id }
+        data[key] = { 
+          name: v.name, 
+          destination: v.destination || "", // 🔥 確保讀取目的地
+          docId: d.id 
+        }
       })
       setBookings(data)
     })
@@ -73,6 +79,10 @@ export function VehicleBooking() {
 
   function bookerOf(day: number, slot: Slot) {
     return bookings[keyOf(day, slot)]?.name || ""
+  }
+
+  function destinationOf(day: number, slot: Slot) {
+    return bookings[keyOf(day, slot)]?.destination || ""
   }
 
   function docIdOf(day: number, slot: Slot) {
@@ -106,6 +116,7 @@ export function VehicleBooking() {
 
   function requestBook(day: number, defaultSlot: Slot) {
     setNameInput("")
+    setDestinationInput("") // 清空目的地
     setError(false)
     setBookMode(defaultSlot)
     setPending({ kind: "book", day })
@@ -114,7 +125,8 @@ export function VehicleBooking() {
   function requestCancel(day: number, slot: Slot, name: string) {
     setCode("")
     setError(false)
-    setPending({ kind: "cancel", day, slot, name })
+    const dest = destinationOf(day, slot)
+    setPending({ kind: "cancel", day, slot, name, destination: dest })
   }
 
   async function confirm() {
@@ -122,22 +134,25 @@ export function VehicleBooking() {
     try {
       if (pending.kind === "book") {
         const name = nameInput.trim()
-        if (!name) {
+        const destination = destinationInput.trim() // 🔥 讀取目的地
+        
+        if (!name || !destination) { // 🔥 姓名和目的地都必填
           setError(true)
           return
         }
+        
         const tasks: Promise<any>[] = []
         if ((bookMode === "am" || bookMode === "full") && !bookerOf(pending.day, "am")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year, month, day: pending.day, slot: "am", name, createdAt: Date.now(),
+              year, month, day: pending.day, slot: "am", name, destination, createdAt: Date.now(),
             })
           )
         }
         if ((bookMode === "pm" || bookMode === "full") && !bookerOf(pending.day, "pm")) {
           tasks.push(
             addDoc(collection(db, "vehicle_bookings"), {
-              year, month, day: pending.day, slot: "pm", name, createdAt: Date.now(),
+              year, month, day: pending.day, slot: "pm", name, destination, createdAt: Date.now(),
             })
           )
         }
@@ -171,20 +186,19 @@ export function VehicleBooking() {
   function closeModal() {
     setPending(null)
     setNameInput("")
+    setDestinationInput("")
     setCode("")
     setError(false)
   }
 
-  const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
+  const monthBookerDetail = pending?.kind === "cancel" ? `${pending.name} (📍 ${pending.destination})` : ""
 
   return (
-    // 最外層：改為純黑背景 [#0a0a0a]，字體指定為 Times New Roman 與 微軟正黑體 (Microsoft JhengHei)
     <div 
       className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a]"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      
-      {/* 🟢 Header card：底色改成淺綠色 [#d1e7dd]，文字改為深綠色以利閱讀 */}
+      {/* Header card */}
       <header className="rounded-lg border border-[#a3cfbb] bg-[#d1e7dd] px-5 py-4 shadow-sm">
         <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
@@ -192,7 +206,7 @@ export function VehicleBooking() {
         <p className="mt-1 text-xs text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* 🟢 License plate banner：車牌那欄底色改成深綠色 [#0f5132]，文字為白色 */}
+      {/* License plate banner */}
       <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md">
         <div className="flex flex-1 flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2">
@@ -212,10 +226,9 @@ export function VehicleBooking() {
         />
       </div>
 
-      {/* 🟢 日曆外框：底色改成淺綠色 [#e2f0d9] */}
+      {/* Calendar */}
       <section className="overflow-hidden rounded-xl border border-[#c5e1a5] bg-[#e2f0d9] p-3 shadow-2xl">
-        
-        {/* 🟢 日曆月份標頭：底色改為深綠色 [#0f5132]，文字為白 */}
+        {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5">
           <button
             type="button"
@@ -236,7 +249,7 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* 🟢 禮拜一至禮拜日標頭：底色改為深綠色 [#0f5132]，文字為白 */}
+        {/* Weekday header */}
         <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-semibold text-white">
           {WEEKDAYS.map((w, i) => (
             <div
@@ -270,6 +283,8 @@ export function VehicleBooking() {
             const isOff = weekend || !!holiday
             const am = bookerOf(day, "am")
             const pm = bookerOf(day, "pm")
+            const amDest = destinationOf(day, "am")
+            const pmDest = destinationOf(day, "pm")
             const booked = !!am || !!pm
             
             return (
@@ -288,7 +303,7 @@ export function VehicleBooking() {
                   } 
                   ${isOff ? "bg-rose-100/70" : "bg-white"}`}
               >
-                {/* 日曆格日期橫條：採用清爽配襯底色 */}
+                {/* 日曆格日期橫條 */}
                 <div className={`px-1 pt-0.5 pb-0.5 ${isOff ? "bg-rose-200/50" : "bg-slate-100/80"}`}>
                   <div className="flex flex-col items-center">
                     <span className={`text-sm font-bold ${isOff ? "text-rose-600" : "text-slate-800"}`}>
@@ -302,11 +317,12 @@ export function VehicleBooking() {
 
                 <div className="h-px bg-slate-200" />
 
-                {/* AM / PM Slots：文字顏色在白底上使用深綠色 */}
+                {/* AM / PM Slots */}
                 <div className={`flex flex-1 flex-col ${isOff ? "bg-rose-50/30" : "bg-white"}`}>
                   <SlotArea
                     label="上午"
                     booker={am}
+                    destination={amDest}
                     onBook={() => requestBook(day, "am")}
                     onCancel={() => requestCancel(day, "am", am)}
                   />
@@ -314,6 +330,7 @@ export function VehicleBooking() {
                   <SlotArea
                     label="下午"
                     booker={pm}
+                    destination={pmDest}
                     onBook={() => requestBook(day, "pm")}
                     onCancel={() => requestCancel(day, "pm", pm)}
                   />
@@ -354,7 +371,7 @@ export function VehicleBooking() {
             {pending.kind === "book" ? (
               <>
                 <p className="mt-2 text-sm text-slate-600">
-                  預約 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
+                  預約 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段、輸入姓名與目的地。
                 </p>
 
                 <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -387,6 +404,7 @@ export function VehicleBooking() {
                   })}
                 </div>
 
+                {/* 姓名輸入框 */}
                 <input
                   type="text"
                   autoFocus
@@ -395,16 +413,30 @@ export function VehicleBooking() {
                     setNameInput(e.target.value)
                     setError(false)
                   }}
-                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入姓名"
                   className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
                 />
-                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">請輸入姓名。</p>}
+
+                {/* 🔥 新增：目的地輸入框 */}
+                <input
+                  type="text"
+                  value={destinationInput}
+                  onChange={(e) => {
+                    setDestinationInput(e.target.value)
+                    setError(false)
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
+                  placeholder="請輸入目的地 (如: 縣道117)"
+                  className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
+                />
+
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">姓名與目的地皆為必填！</p>}
               </>
             ) : (
               <>
                 <p className="mt-2 text-sm text-slate-600">
-                  取消 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段（{monthBookerName}），請輸入管制密碼。
+                  取消 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段的預約：<br />
+                  <span className="font-semibold text-amber-800">{monthBookerDetail}</span>，請輸入管制密碼。
                 </p>
                 <input
                   type="password"
@@ -453,11 +485,13 @@ export function VehicleBooking() {
 function SlotArea({
   label,
   booker,
+  destination,
   onBook,
   onCancel,
 }: {
   label: string
   booker: string
+  destination: string
   onBook: () => void
   onCancel: () => void
 }) {
@@ -467,20 +501,28 @@ function SlotArea({
       type="button"
       onClick={active ? onCancel : onBook}
       aria-pressed={active}
-      aria-label={active ? `${label} 已由 ${booker} 預約，點擊取消` : `預約 ${label}`}
-      className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1.5 text-xs font-semibold transition-colors ${
+      aria-label={active ? `${label} 已由 ${booker} 預約至 ${destination}，點擊取消` : `預約 ${label}`}
+      className={`flex flex-1 flex-col items-center justify-center px-0.5 py-1 text-xs font-semibold transition-colors ${
         active
           ? "bg-amber-100 text-amber-800 hover:bg-amber-200/70"
           : "text-[#0f5132] hover:bg-slate-100"
       }`}
     >
-      <span className="shrink-0 text-[9px] opacity-50 leading-none">{label}</span>
+      <span className="shrink-0 text-[9px] opacity-40 leading-none">{label}</span>
       {active ? (
-        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-700">
-          {booker}
-        </span>
+        <div className="w-full flex flex-col items-center justify-center min-h-[32px]">
+          <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-800">
+            {booker}
+          </span>
+          {/* 🔥 日曆格內顯示簡短目的地 */}
+          {destination && (
+            <span className="w-full truncate px-0.5 text-center text-[9px] font-medium text-slate-500 scale-90">
+              📍{destination}
+            </span>
+          )}
+        </div>
       ) : (
-        <span className="text-[10px] text-slate-400 font-normal">空</span>
+        <span className="text-[10px] text-slate-400 font-normal py-1.5">空</span>
       )}
     </button>
   )
