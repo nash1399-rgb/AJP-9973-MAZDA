@@ -285,11 +285,13 @@ hover:shadow-md
 hover:border-slate-300
 hover:z-10
 ${
-  isToday
-    ? "bg-blue-50 border-blue-200"
+ isToday
+  ? "border-blue-600 ring-4 ring-blue-500"
+  : booked
+    ? "border-orange-500"
     : isOff
-      ? "bg-slate-50"
-      : ""
+      ? "border-red-200 bg-red-50"
+      : "border-slate-200"
 }`}
     >
                 {/* date header */}
