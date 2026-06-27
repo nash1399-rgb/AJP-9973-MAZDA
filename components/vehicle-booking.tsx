@@ -178,10 +178,13 @@ export function VehicleBooking() {
   const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
 
   return (
-    // 外層：採用與目標網站一致的純黑背景 [#0a0a0a]，基礎字色改為 slate-100
-    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100 font-sans">
+    // 💡 關鍵改動：設定英文字體為 'Times New Roman'，中文字體為 'BiauKai', 'DFKai-SB' (標楷體標準系統名稱)
+    <div 
+      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100"
+      style={{ fontFamily: "'Times New Roman', 'BiauKai', 'DFKai-SB', 'Marko Horc', serif" }}
+    >
       
-      {/* Header card：深黑底色 [#121212] 與暗色細邊框 [#1f1f1f] */}
+      {/* Header card */}
       <header className="rounded-lg border border-[#1f1f1f] bg-[#121212] px-5 py-4 shadow-sm">
         <h1 className="text-balance text-lg font-bold text-[#39ff14]">
           邑菖工程顧問有限公司－公務車預約系統
@@ -193,7 +196,7 @@ export function VehicleBooking() {
       <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border border-[#39ff14]/20 bg-[#121212] p-3 text-white shadow-inner">
         <div className="flex flex-1 flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-base font-extrabold tracking-wide text-[#39ff14]">
+            <span className="text-base font-extrabold tracking-wide text-[#39ff14]">
               AJP-9973（95無鉛汽油）
             </span>
             <Fuel className="size-5 shrink-0 text-[#39ff14]" aria-hidden="true" />
@@ -221,7 +224,7 @@ export function VehicleBooking() {
           >
             <ChevronLeft className="size-5" />
           </button>
-          <span className="select-none font-mono text-lg font-extrabold tracking-wide text-slate-200">
+          <span className="select-none text-lg font-extrabold tracking-wide text-slate-200">
             {year} 年 {month} 月
           </span>
           <button
@@ -251,7 +254,7 @@ export function VehicleBooking() {
         <div className="mt-2 grid grid-cols-7 gap-1.5" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
-            const weekend = col === 5 || col === 6 // 六與日
+            const weekend = col === 5 || col === 6
             
             if (day === null) return (
               <div key={`empty-${idx}`} className="min-h-[110px]" aria-hidden="true" />
@@ -280,10 +283,10 @@ export function VehicleBooking() {
                       : booked
                         ? "border-amber-500"
                         : isOff
-                          ? "border-rose-900/60 ring-1 ring-rose-900/20" // 🔴 放假日/六日：紅色細框
+                          ? "border-rose-900/60 ring-1 ring-rose-900/20"
                           : "border-[#1f1f1f]"
                   } 
-                  ${isOff ? "bg-rose-950/25" : "bg-[#161616]"}`} // 🔴 放假日/六日：高質感暗紅襯底
+                  ${isOff ? "bg-rose-950/25" : "bg-[#161616]"}`}
               >
                 {/* date header */}
                 <div className="px-1 pt-0.5 pb-0.5 bg-[#1f1f1f]/80">
@@ -325,7 +328,7 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* Modal 彈窗：同步調整為純黑萊姆綠配色 */}
+      {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={closeModal}>
           <div className="w-full max-w-xs rounded-lg border border-[#1f1f1f] bg-[#121212] p-5 text-slate-100 shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -374,7 +377,7 @@ export function VehicleBooking() {
                           disabled
                             ? "cursor-not-allowed border-neutral-800 bg-[#0f0f0f] text-neutral-700"
                             : selected
-                              ? "border-[#39ff14] bg-[#39ff14] text-black"
+                              ? "border-[#39ff14] bg-[#39ff14] text-black shadow-md shadow-[#39ff14]/20"
                               : "border-neutral-700 bg-[#1f1f1f] text-[#39ff14] hover:bg-neutral-800"
                         }`}
                       >
@@ -473,7 +476,8 @@ function SlotArea({
     >
       <span className="shrink-0 text-[9px] opacity-40 leading-none">{label}</span>
       {active ? (
-        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-300确定">
+        // 💡 修正處：將前一版漏打的「300确定」改正為乾淨的「text-amber-300」
+        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-300">
           {booker}
         </span>
       ) : (
