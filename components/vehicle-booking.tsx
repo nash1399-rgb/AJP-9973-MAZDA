@@ -254,7 +254,13 @@ export function VehicleBooking() {
           {cells.map((day, idx) => {
             const col = idx % 7
             const weekend = col === 5 || col === 6
-            if (day === null) return <div key={idx} className="min-h-[110px]" aria-hidden="true" />
+            if (day === null) return (
+  <div
+    key={`empty-${idx}`}
+    className="min-h-[110px]"
+    aria-hidden="true"
+  />
+)
             
 const today = new Date()
 
@@ -270,18 +276,18 @@ const isToday =
             const booked = !!am || !!pm
             
             return (
-              <div
-                key={idx}
-                className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
-  isToday
-    ? "border-blue-600 ring-4 ring-blue-500"
-    : booked
-      ? "border-amber-500 ring-1 ring-amber-500"
-      : isOff
-        ? "border-rose-200"
-        : "border-slate-200"
-} ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
-              >
+    <div
+      key={`${year}-${month}-${day}`}
+      className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
+        isToday
+          ? "border-blue-600 ring-4 ring-blue-500"
+          : booked
+            ? "border-amber-500 ring-1 ring-amber-500"
+            : isOff
+              ? "border-rose-200"
+              : "border-slate-200"
+      } ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
+    >
                 {/* date header */}
                 <div className="px-1 pt-0.5 pb-0.5 bg-white/60">
                   <span className={`block text-center text-sm font-bold leading-tight ${isOff ? "text-rose-600" : "text-emerald-800"}`}>
