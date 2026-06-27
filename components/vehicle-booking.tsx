@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Fuel, ChevronLeft, ChevronRight, Lock, User, X, MapPin } from "lucide-react"
+import { Fuel, ChevronLeft, ChevronRight, Lock, User, X } from "lucide-react"
 import { getHolidayName } from "@/lib/holidays"
 import { db } from "@/lib/firebase"
 import {
@@ -19,7 +19,6 @@ const PASSCODE = "1234"
 
 type Slot = "am" | "pm"
 type BookMode = "am" | "pm" | "full"
-// 擴充 BookingInfo 結構，除了名字也記錄目的地
 type BookingInfo = { name: string; destination: string; docId: string }
 
 type Pending =
@@ -34,7 +33,7 @@ export function VehicleBooking() {
   const [pending, setPending] = useState<Pending | null>(null)
   const [bookMode, setBookMode] = useState<BookMode>("am")
   const [nameInput, setNameInput] = useState("")
-  const [destinationInput, setDestinationInput] = useState("") // 🔥 新增：目的地輸入狀態
+  const [destinationInput, setDestinationInput] = useState("") 
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
 
@@ -50,7 +49,7 @@ export function VehicleBooking() {
         const key = `${v.year}-${v.month}-${v.day}-${v.slot}`
         data[key] = { 
           name: v.name, 
-          destination: v.destination || "", // 🔥 確保讀取目的地
+          destination: v.destination || "", 
           docId: d.id 
         }
       })
@@ -116,7 +115,7 @@ export function VehicleBooking() {
 
   function requestBook(day: number, defaultSlot: Slot) {
     setNameInput("")
-    setDestinationInput("") // 清空目的地
+    setDestinationInput("") 
     setError(false)
     setBookMode(defaultSlot)
     setPending({ kind: "book", day })
@@ -134,9 +133,9 @@ export function VehicleBooking() {
     try {
       if (pending.kind === "book") {
         const name = nameInput.trim()
-        const destination = destinationInput.trim() // 🔥 讀取目的地
+        const destination = destinationInput.trim() 
         
-        if (!name || !destination) { // 🔥 姓名和目的地都必填
+        if (!name || !destination) { 
           setError(true)
           return
         }
@@ -417,7 +416,7 @@ export function VehicleBooking() {
                   className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
                 />
 
-                {/* 🔥 新增：目的地輸入框 */}
+                {/* 目的地輸入框：已精簡提示字 */}
                 <input
                   type="text"
                   value={destinationInput}
@@ -426,7 +425,7 @@ export function VehicleBooking() {
                     setError(false)
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
-                  placeholder="請輸入目的地 (如: 縣道117)"
+                  placeholder="請輸入目的地"
                   className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
                 />
 
@@ -514,7 +513,6 @@ function SlotArea({
           <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-800">
             {booker}
           </span>
-          {/* 🔥 日曆格內顯示簡短目的地 */}
           {destination && (
             <span className="w-full truncate px-0.5 text-center text-[9px] font-medium text-slate-500 scale-90">
               📍{destination}
