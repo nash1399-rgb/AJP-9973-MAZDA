@@ -178,32 +178,32 @@ export function VehicleBooking() {
   const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
 
   return (
-    // 💡 關鍵改動：設定英文字體為 'Times New Roman'，中文字體為 'BiauKai', 'DFKai-SB' (標楷體標準系統名稱)
+    // 最外層：改為純黑背景 [#0a0a0a]，字體指定為 Times New Roman 與 微軟正黑體 (Microsoft JhengHei)
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100"
-      style={{ fontFamily: "'Times New Roman', 'BiauKai', 'DFKai-SB', 'Marko Horc', serif" }}
+      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a]"
+      style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
       
-      {/* Header card */}
-      <header className="rounded-lg border border-[#1f1f1f] bg-[#121212] px-5 py-4 shadow-sm">
-        <h1 className="text-balance text-lg font-bold text-[#39ff14]">
+      {/* 🟢 Header card：底色改成淺綠色 [#d1e7dd]，文字改為深綠色以利閱讀 */}
+      <header className="rounded-lg border border-[#a3cfbb] bg-[#d1e7dd] px-5 py-4 shadow-sm">
+        <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-1 text-xs text-slate-400">線上即時預約的登記平台</p>
+        <p className="mt-1 text-xs text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* License plate banner + vehicle info */}
-      <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border border-[#39ff14]/20 bg-[#121212] p-3 text-white shadow-inner">
+      {/* 🟢 License plate banner：車牌那欄底色改成深綠色 [#0f5132]，文字為白色 */}
+      <div className="flex items-stretch gap-3 overflow-hidden rounded-lg border border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md">
         <div className="flex flex-1 flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2">
             <span className="text-base font-extrabold tracking-wide text-[#39ff14]">
               AJP-9973（95無鉛汽油）
             </span>
-            <Fuel className="size-5 shrink-0 text-[#39ff14]" aria-hidden="true" />
+            <Fuel className="size-5 shrink-0 text-orange-400" aria-hidden="true" />
           </div>
-          <div className="text-xs font-semibold text-slate-300">下次保養里程數 129526 公里</div>
-          <div className="text-xs font-semibold text-slate-300">下次汽車檢驗日期 2026 年 12 月 27 日</div>
-          <div className="text-[11px] leading-tight text-slate-400">保養廠：祥盛汽車-新竹市東區復興里經國路一段 388 之 3 號，電話：03-5353897</div>
+          <div className="text-xs font-semibold text-slate-200">下次保養里程數 129526 公里</div>
+          <div className="text-xs font-semibold text-slate-200">下次汽車檢驗日期 2026 年 12 月 27 日</div>
+          <div className="text-[11px] leading-tight text-slate-300">保養廠：祥盛汽車-新竹市東區復興里經國路一段 388 之 3 號，電話：03-5353897</div>
         </div>
         <img
           src="/images/ajp-9973.jpg"
@@ -212,37 +212,37 @@ export function VehicleBooking() {
         />
       </div>
 
-      {/* Calendar */}
-      <section className="overflow-hidden rounded-xl border border-[#1f1f1f] bg-[#121212] p-3 shadow-2xl">
+      {/* 🟢 日曆外框：底色改成淺綠色 [#e2f0d9] */}
+      <section className="overflow-hidden rounded-xl border border-[#c5e1a5] bg-[#e2f0d9] p-3 shadow-2xl">
         
-        {/* Calendar header */}
-        <div className="flex items-center justify-between rounded-lg bg-[#1f1f1f] px-2 py-2.5">
+        {/* 🟢 日曆月份標頭：底色改為深綠色 [#0f5132]，文字為白 */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5">
           <button
             type="button"
             onClick={() => changeMonth(-1)}
-            className="flex size-9 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-neutral-800 hover:text-[#39ff14]"
+            className="flex size-9 items-center justify-center rounded-md text-slate-300 transition-colors hover:bg-black/20 hover:text-white"
           >
             <ChevronLeft className="size-5" />
           </button>
-          <span className="select-none text-lg font-extrabold tracking-wide text-slate-200">
+          <span className="select-none text-lg font-extrabold tracking-wide text-white">
             {year} 年 {month} 月
           </span>
           <button
             type="button"
             onClick={() => changeMonth(1)}
-            className="flex size-9 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-neutral-800 hover:text-[#39ff14]"
+            className="flex size-9 items-center justify-center rounded-md text-slate-300 transition-colors hover:bg-black/20 hover:text-white"
           >
             <ChevronRight className="size-5" />
           </button>
         </div>
 
-        {/* Weekday header */}
-        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#1f1f1f] text-center text-sm font-semibold text-slate-300">
+        {/* 🟢 禮拜一至禮拜日標頭：底色改為深綠色 [#0f5132]，文字為白 */}
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-semibold text-white">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`border-r border-neutral-800 py-1.5 last:border-r-0 ${
-                i === 5 || i === 6 ? "font-extrabold text-rose-400" : "text-slate-300"
+              className={`border-r border-white/10 py-1.5 last:border-r-0 ${
+                i === 5 || i === 6 ? "font-extrabold text-orange-400" : "text-white"
               }`}
             >
               {w}
@@ -279,38 +279,38 @@ export function VehicleBooking() {
                   hover:-translate-y-[2px] hover:shadow-md hover:z-10
                   ${
                     isToday
-                      ? "border-[#39ff14] ring-2 ring-[#39ff14]/50 z-10"
+                      ? "border-blue-600 ring-2 ring-blue-600/50 z-10"
                       : booked
                         ? "border-amber-500"
                         : isOff
-                          ? "border-rose-900/60 ring-1 ring-rose-900/20"
-                          : "border-[#1f1f1f]"
+                          ? "border-rose-300"
+                          : "border-[#c5e1a5]"
                   } 
-                  ${isOff ? "bg-rose-950/25" : "bg-[#161616]"}`}
+                  ${isOff ? "bg-rose-100/70" : "bg-white"}`}
               >
-                {/* date header */}
-                <div className="px-1 pt-0.5 pb-0.5 bg-[#1f1f1f]/80">
+                {/* 日曆格日期橫條：採用清爽配襯底色 */}
+                <div className={`px-1 pt-0.5 pb-0.5 ${isOff ? "bg-rose-200/50" : "bg-slate-100/80"}`}>
                   <div className="flex flex-col items-center">
-                    <span className={`text-sm font-bold ${isOff ? "text-rose-400" : "text-[#39ff14]"}`}>
+                    <span className={`text-sm font-bold ${isOff ? "text-rose-600" : "text-slate-800"}`}>
                       {day}
                     </span>
                   </div>
-                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-400">
+                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500">
                     {holiday ?? ""}
                   </span>
                 </div>
 
-                <div className="h-px bg-[#1f1f1f]" />
+                <div className="h-px bg-slate-200" />
 
-                {/* AM / PM Slots */}
-                <div className="flex flex-1 flex-col bg-[#0f0f0f]">
+                {/* AM / PM Slots：文字顏色在白底上使用深綠色 */}
+                <div className={`flex flex-1 flex-col ${isOff ? "bg-rose-50/30" : "bg-white"}`}>
                   <SlotArea
                     label="上午"
                     booker={am}
                     onBook={() => requestBook(day, "am")}
                     onCancel={() => requestCancel(day, "am", am)}
                   />
-                  <div className="h-px bg-[#1f1f1f]" />
+                  <div className="h-px bg-slate-100" />
                   <SlotArea
                     label="下午"
                     booker={pm}
@@ -330,10 +330,10 @@ export function VehicleBooking() {
 
       {/* Modal 彈窗 */}
       {pending && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-lg border border-[#1f1f1f] bg-[#121212] p-5 text-slate-100 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={closeModal}>
+          <div className="w-full max-w-xs rounded-lg border border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h2 className="flex items-center gap-1.5 text-base font-bold text-[#39ff14]">
+              <h2 className="flex items-center gap-1.5 text-base font-bold text-[#0f5132]">
                 {pending.kind === "book" ? (
                   <>
                     <User className="size-4" />
@@ -346,15 +346,15 @@ export function VehicleBooking() {
                   </>
                 )}
               </h2>
-              <button type="button" onClick={closeModal} className="text-slate-500 hover:text-slate-300">
+              <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600">
                 <X className="size-5" />
               </button>
             </div>
 
             {pending.kind === "book" ? (
               <>
-                <p className="mt-2 text-sm text-slate-300">
-                  預約 <span className="font-bold text-[#39ff14]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
+                <p className="mt-2 text-sm text-slate-600">
+                  預約 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
                 </p>
 
                 <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -375,10 +375,10 @@ export function VehicleBooking() {
                         }}
                         className={`rounded-md border py-2 text-sm font-semibold transition-colors ${
                           disabled
-                            ? "cursor-not-allowed border-neutral-800 bg-[#0f0f0f] text-neutral-700"
+                            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
                             : selected
-                              ? "border-[#39ff14] bg-[#39ff14] text-black shadow-md shadow-[#39ff14]/20"
-                              : "border-neutral-700 bg-[#1f1f1f] text-[#39ff14] hover:bg-neutral-800"
+                              ? "border-amber-500 bg-amber-500 text-white"
+                              : "border-slate-200 bg-white text-[#0f5132] hover:bg-slate-50"
                         }`}
                       >
                         {text}
@@ -397,14 +397,14 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入姓名"
-                  className="mt-3 w-full rounded-md border border-neutral-700 bg-[#0f0f0f] px-3 py-2 text-center text-base text-[#39ff14] outline-none focus:border-[#39ff14]"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-base text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
                 />
-                {error && <p className="mt-1.5 text-xs font-medium text-rose-400">請輸入姓名。</p>}
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">請輸入姓名。</p>}
               </>
             ) : (
               <>
-                <p className="mt-2 text-sm text-slate-300">
-                  取消 <span className="font-bold text-[#39ff14]">{`${year}/${month}/${pending.day}`}</span> 時段（{monthBookerName}），請輸入管制密碼。
+                <p className="mt-2 text-sm text-slate-600">
+                  取消 <span className="font-bold text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段（{monthBookerName}），請輸入管制密碼。
                 </p>
                 <input
                   type="password"
@@ -417,9 +417,9 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入密碼"
-                  className="mt-3 w-full rounded-md border border-neutral-700 bg-[#0f0f0f] px-3 py-2 text-center text-lg tracking-[0.4em] text-[#39ff14] outline-none focus:border-[#39ff14]"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-lg tracking-[0.4em] text-[#0f5132] outline-none focus:border-[#0f5132] focus:ring-1 focus:ring-[#0f5132]"
                 />
-                {error && <p className="mt-1.5 text-xs font-medium text-rose-400">密碼錯誤，請重新輸入。</p>}
+                {error && <p className="mt-1.5 text-xs font-medium text-rose-600">密碼錯誤，請重新輸入。</p>}
               </>
             )}
 
@@ -427,17 +427,17 @@ export function VehicleBooking() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 rounded-md border border-neutral-700 bg-[#1f1f1f] py-2 text-sm font-semibold text-slate-300 hover:bg-neutral-800"
+                className="flex-1 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
               >
                 關閉
               </button>
               <button
                 type="button"
                 onClick={confirm}
-                className={`flex-1 rounded-md py-2 text-sm font-semibold shadow-sm ${
+                className={`flex-1 rounded-md py-2 text-sm font-semibold shadow-sm text-white ${
                   pending.kind === "book"
-                    ? "bg-[#39ff14] text-black hover:opacity-90"
-                    : "bg-rose-600 text-white hover:bg-rose-700"
+                    ? "bg-[#0f5132] hover:bg-[#146c43]"
+                    : "bg-rose-600 hover:bg-rose-700"
                 }`}
               >
                 {pending.kind === "book" ? "確認預約" : "確認取消"}
@@ -470,18 +470,17 @@ function SlotArea({
       aria-label={active ? `${label} 已由 ${booker} 預約，點擊取消` : `預約 ${label}`}
       className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1.5 text-xs font-semibold transition-colors ${
         active
-          ? "bg-amber-950/30 text-amber-400 hover:bg-amber-950/50"
-          : "text-slate-500 hover:bg-neutral-800 hover:text-[#39ff14]"
+          ? "bg-amber-100 text-amber-800 hover:bg-amber-200/70"
+          : "text-[#0f5132] hover:bg-slate-100"
       }`}
     >
-      <span className="shrink-0 text-[9px] opacity-40 leading-none">{label}</span>
+      <span className="shrink-0 text-[9px] opacity-50 leading-none">{label}</span>
       {active ? (
-        // 💡 修正處：將前一版漏打的「300确定」改正為乾淨的「text-amber-300」
-        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-300">
+        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-700">
           {booker}
         </span>
       ) : (
-        <span className="text-[10px] text-neutral-700 font-normal">空</span>
+        <span className="text-[10px] text-slate-400 font-normal">空</span>
       )}
     </button>
   )
