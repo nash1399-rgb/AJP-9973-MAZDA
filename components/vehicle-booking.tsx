@@ -276,7 +276,7 @@ export function VehicleBooking() {
                   <span className={`block text-center text-sm font-bold leading-tight ${isOff ? "text-rose-600" : "text-emerald-800"}`}>
                     {day}
                   </span>
-                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500等">
+                  <span className="block h-3 truncate text-center text-[9px] font-semibold leading-3 text-rose-500">
                     {holiday ?? ""}
                   </span>
                 </div>
