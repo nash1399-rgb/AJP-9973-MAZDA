@@ -323,7 +323,7 @@ const isToday =
       </section>
 
       <p className="py-2 text-center text-xs text-slate-400">
-        《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼》
+        《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
       {/* Modal */}
