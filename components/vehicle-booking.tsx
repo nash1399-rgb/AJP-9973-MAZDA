@@ -256,6 +256,13 @@ export function VehicleBooking() {
             const weekend = col === 5 || col === 6
             if (day === null) return <div key={idx} className="min-h-[110px]" aria-hidden="true" />
             
+const today = new Date()
+
+const isToday =
+  today.getFullYear() === year &&
+  today.getMonth() + 1 === month &&
+  today.getDate() === day
+
             const holiday = getHolidayName(year, month, day)
             const isOff = weekend || !!holiday
             const am = bookerOf(day, "am")
@@ -266,12 +273,14 @@ export function VehicleBooking() {
               <div
                 key={idx}
                 className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
-                  booked
-                    ? "border-amber-500 ring-1 ring-amber-500"
-                    : isOff
-                      ? "border-rose-200"
-                      : "border-slate-200"
-                } ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
+  isToday
+    ? "border-blue-600 ring-4 ring-blue-500"
+    : booked
+      ? "border-amber-500 ring-1 ring-amber-500"
+      : isOff
+        ? "border-rose-200"
+        : "border-slate-200"
+} ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
               >
                 {/* date header */}
                 <div className="px-1 pt-0.5 pb-0.5 bg-white/60">
