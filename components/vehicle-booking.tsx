@@ -278,15 +278,13 @@ const isToday =
             return (
     <div
       key={`${year}-${month}-${day}`}
-      className={`flex min-h-[110px] flex-col overflow-hidden rounded-md border shadow-sm ${
-        isToday
-          ? "bg-blue-50 border-blue-300"
-          : booked
-            ? "border-amber-500 ring-1 ring-amber-500"
-            : isOff
-              ? "border-rose-200"
-              : "border-slate-200"
-      } ${isOff ? "bg-rose-50/70" : "bg-slate-50/50"}`}
+      className={`relative flex min-h-[110px] flex-col overflow-hidden border bg-white transition hover:bg-slate-50 hover:shadow-sm ${
+  isToday
+    ? "bg-blue-50 border-blue-200"
+    : isOff
+      ? "bg-slate-50 border-slate-100"
+      : "border-slate-100"
+}`}
     >
                 {/* date header */}
                 <div className="px-1 pt-0.5 pb-0.5 bg-white/60">
@@ -470,23 +468,28 @@ function SlotArea({
 }) {
   const active = !!booker
   return (
-    <button
-      type="button"
-      onClick={active ? onCancel : onBook}
-      className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-xs font-semibold transition-colors ${
-        active
-          ? "bg-amber-50 text-amber-700 hover:bg-amber-100/70"
-          : "text-emerald-700 hover:bg-slate-50"
-      }`}
-    >
-      <span className="shrink-0 text-[9px] opacity-60 leading-none">{label}</span>
-      {active ? (
-        <span className="w-full truncate px-0.5 text-center text-[11px] font-bold tracking-tight text-amber-900">
-          {booker}
-        </span>
-      ) : (
-        <span className="text-[10px] text-slate-300 font-normal">空</span>
-      )}
-    </button>
+  <button
+  type="button"
+  onClick={active ? onCancel : onBook}
+  className={`relative flex flex-1 flex-col items-start justify-center gap-0.5 px-2 py-1 text-xs font-semibold transition-colors ${
+    active
+      ? "text-slate-800 hover:bg-slate-50"
+      : "text-emerald-700 hover:bg-slate-50"
+  }`}
+>
+  {active && (
+    <span className="absolute left-0 top-0 h-full w-1 bg-amber-400" />
+  )}
+
+  <span className="text-[9px] opacity-60">{label}</span>
+
+  {active ? (
+    <span className="truncate text-[11px] font-semibold text-left">
+      {booker}
+    </span>
+  ) : (
+    <span className="text-[10px] text-slate-300">空</span>
+  )}
+</button>
   )
 }
