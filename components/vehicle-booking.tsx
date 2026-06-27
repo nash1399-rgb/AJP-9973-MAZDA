@@ -278,12 +278,17 @@ const isToday =
             return (
     <div
       key={`${year}-${month}-${day}`}
-      className={`relative flex min-h-[110px] flex-col overflow-hidden border bg-white transition hover:bg-slate-50 hover:shadow-sm ${
+      className={`relative flex min-h-[110px] flex-col overflow-hidden border border-slate-100 bg-white transition-all duration-200 ease-out
+hover:-translate-y-[2px]
+hover:shadow-md
+hover:border-slate-300
+hover:z-10
+${
   isToday
     ? "bg-blue-50 border-blue-200"
     : isOff
-      ? "bg-slate-50 border-slate-100"
-      : "border-slate-100"
+      ? "bg-slate-50"
+      : ""
 }`}
     >
                 {/* date header */}
