@@ -74,6 +74,7 @@ export function VehicleBooking() {
     return `${year}-${month}-${day}-${slot}`
   }
 
+  // 修正型別安全：slot 只接受 'am' 或 'pm'
   function bookerOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.name || ""
   }
@@ -96,6 +97,7 @@ export function VehicleBooking() {
     setMonth(m)
   }
 
+  // 左右滑動切換月份
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
   }
@@ -107,6 +109,7 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
+  // 修正型別安全
   function requestBook(day: number, defaultSlot: "am" | "pm") {
     setNameInput("")
     setError(false)
@@ -304,16 +307,16 @@ export function VehicleBooking() {
                           : "border-slate-300 bg-white"
                   }`}
               >
-                {/* 日曆格日期橫條 */}
-                <div className={`px-1.5 pt-1.5 pb-0.5 flex items-baseline justify-between border-b ${isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
-                  <span className={`text-sm font-extrabold ${
+                {/* 🛠️ 日曆格日期與節日區塊：改為 flex-col 垂直排列，強迫節日名稱精確切到下一行 */}
+                <div className={`px-1.5 pt-1 pb-1 flex flex-col items-start justify-start border-b gap-0.5 ${isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
+                  <span className={`text-sm font-extrabold leading-none ${
                     isToday ? "text-slate-950 underline decoration-2 underline-offset-2" : isOff ? "text-rose-600" : "text-slate-800"
                   }`}>
                     {day}
                   </span>
-                  {/* 🛠️ 優化節日名稱顯示：字體加粗、顏色加深、移除縮放、允許適度折行 */}
+                  
                   {holiday && (
-                    <span className="block text-[9px] font-extrabold text-rose-700 text-right leading-tight max-w-[42px] break-all">
+                    <span className="block text-[9px] font-extrabold text-rose-700 text-left leading-tight w-full break-all truncate">
                       {holiday}
                     </span>
                   )}
@@ -327,6 +330,7 @@ export function VehicleBooking() {
                     onBook={() => requestBook(day, "am")}
                     onCancel={() => requestCancel(day, "am", am)}
                   />
+                  <div className="h-px bg-transparent" />
                   <SlotArea
                     label="下午"
                     booker={pm}
@@ -347,7 +351,7 @@ export function VehicleBooking() {
       {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-xl border border-slate-3  00 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-xs rounded-xl border border-slate-300 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h2 className="text-sm font-bold text-slate-900">
                 {pending.kind === "book" ? "預約登記" : "取消預約"}
