@@ -183,21 +183,21 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#f1f5f9] text-slate-900 overflow-x-hidden"
+      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden" // 🎨 背景加深為質感灰藍色，襯托白色日曆卡片
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
       {/* 🏛️ Header card */}
-      <header className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+      <header className="rounded-xl border border-slate-300 bg-white px-5 py-4 shadow-sm">
         <h1 className="text-balance text-base font-bold text-slate-900 tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-0.5 text-xs font-medium text-slate-400">線上即時公務車預約登記平台</p>
+        <p className="mt-0.5 text-xs font-medium text-slate-500">線上即時公務車預約登記平台</p>
       </header>
 
       {/* 🚗 License plate banner */}
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-700 bg-[#334155] p-4 text-white shadow-sm">
+      <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-[#1e293b] p-4 text-white shadow-md">
         <div className="flex-1 flex flex-col gap-1 text-sm font-medium text-slate-300">
-          <div className="flex items-center gap-2 border-b border-slate-600/60 pb-1.5 mb-1.5">
+          <div className="flex items-center gap-2 border-b border-slate-700 pb-1.5 mb-1.5">
             <span className="text-base font-bold tracking-wide text-white">
               AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
             </span>
@@ -211,17 +211,17 @@ export function VehicleBooking() {
           </div>
         </div>
         
-        <div className="w-[80px] h-[96px] shrink-0 overflow-hidden rounded-lg border border-slate-600 bg-neutral-800 shadow-sm">
+        <div className="w-[80px] h-[96px] shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-neutral-800 shadow-sm">
           <img
             src="/images/ajp-9973.jpg"
             alt="公務車照片"
-            className="w-full h-full object-cover grayscale-[10%]"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>
 
-      {/* 📅 日曆主體外框 - 提高線條與對比度 */}
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      {/* 📅 日曆主體外框 */}
+      <section className="overflow-hidden rounded-xl border border-slate-300 bg-white p-3 shadow-md">
         
         {/* 月份切換標頭 */}
         <div className="flex items-center justify-between rounded-lg bg-slate-900 px-2 py-2 shadow-sm">
@@ -244,13 +244,13 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* 禮拜標頭 - 加深灰色文字 */}
-        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-100 text-center text-xs font-bold text-slate-600 border border-slate-200">
+        {/* 禮拜標頭 - 加深灰色背景與字體 */}
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-200/80 text-center text-xs font-bold text-slate-700 border border-slate-300">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
               className={`py-2 ${
-                i === 5 || i === 6 ? "text-rose-600 bg-rose-50/50" : ""
+                i === 5 || i === 6 ? "text-rose-600 bg-rose-100/50" : ""
               }`}
             >
               {w}
@@ -258,7 +258,7 @@ export function VehicleBooking() {
           ))}
         </div>
 
-        {/* 日曆網格 - 平日邊框全面加深為 border-slate-200/90 */}
+        {/* 日曆網格 - 💡 邊框全面加深為 border-slate-300，清晰明瞭 */}
         <div className="mt-2 grid grid-cols-7 gap-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
@@ -286,23 +286,23 @@ export function VehicleBooking() {
                 className={`relative flex min-h-[105px] flex-col overflow-hidden rounded-lg border transition-all duration-150
                   ${
                     isToday
-                      ? "border-slate-900 ring-2 ring-slate-900/10 z-10 bg-slate-50/50"
+                      ? "border-slate-950 ring-2 ring-slate-950/20 z-10 bg-slate-100/50"
                       : booked
-                        ? "border-amber-300 bg-amber-50/10"
+                        ? "border-amber-400 bg-amber-50/20"
                         : isOff
-                          ? "border-rose-200 bg-rose-50/30"
-                          : "border-slate-200/90 bg-white"
+                          ? "border-rose-300 bg-rose-100/30" // 🎨 假日的粉紅襯底加深
+                          : "border-slate-300 bg-white" // 🎨 平日格子的線條邊框加深
                   }`}
               >
                 {/* 日曆格日期橫條 */}
-                <div className="px-1.5 pt-1.5 pb-0.5 flex items-baseline justify-between">
+                <div className={`px-1.5 pt-1.5 pb-0.5 flex items-baseline justify-between border-b ${isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
                   <span className={`text-sm font-extrabold ${
                     isToday ? "text-slate-950 underline decoration-2 underline-offset-2" : isOff ? "text-rose-600" : "text-slate-800"
                   }`}>
                     {day}
                   </span>
                   {holiday && (
-                    <span className="block text-[8px] font-bold scale-90 text-rose-500 truncate max-w-[32px]">
+                    <span className="block text-[8px] font-bold scale-90 text-rose-600 truncate max-w-[32px]">
                       {holiday}
                     </span>
                   )}
@@ -329,15 +329,15 @@ export function VehicleBooking() {
         </div>
       </section>
 
-      <p className="text-center text-[11px] font-medium text-slate-400">
+      <p className="text-center text-[11px] font-medium text-slate-500">
         左右滑動切換月份 ‧ 點擊時段預約 ‧ 取消密碼 1234
       </p>
 
       {/* Modal 彈窗 */}
       {pending && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-xl border border-slate-200 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={closeModal}>
+          <div className="w-full max-w-xs rounded-xl border border-slate-300 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h2 className="text-sm font-bold text-slate-900">
                 {pending.kind === "book" ? "預約登記" : "取消預約"}
               </h2>
@@ -370,10 +370,10 @@ export function VehicleBooking() {
                         }}
                         className={`rounded-md border py-1.5 text-xs font-medium transition-colors ${
                           disabled
-                            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                            ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-300 opacity-50"
                             : selected
                               ? "border-slate-900 bg-slate-950 text-white font-semibold"
-                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                         }`}
                       >
                         {text}
@@ -382,6 +382,7 @@ export function VehicleBooking() {
                   })}
                 </div>
 
+                {/* 姓名輸入框 */}
                 <input
                   type="text"
                   autoFocus
@@ -392,7 +393,7 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入姓名"
-                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-center text-sm font-medium text-slate-800 outline-none focus:border-slate-900"
+                  className="mt-3 w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-center text-sm font-medium text-slate-800 outline-none focus:border-slate-900"
                 />
                 {error && <p className="mt-1 text-[11px] font-medium text-rose-500">請輸入姓名</p>}
               </>
@@ -413,17 +414,17 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="輸入管制密碼"
-                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-center text-sm tracking-widest text-slate-800 outline-none focus:border-slate-900"
+                  className="mt-3 w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-center text-sm tracking-widest text-slate-800 outline-none focus:border-slate-900"
                 />
                 {error && <p className="mt-1 text-[11px] font-medium text-rose-500">密碼錯誤</p>}
               </>
             )}
 
-            <div className="mt-4 flex gap-1.5 border-t border-slate-100 pt-3">
+            <div className="mt-4 flex gap-1.5 border-t border-slate-200 pt-3">
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 rounded-md border border-slate-200 bg-white py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                className="flex-1 rounded-md border border-slate-300 bg-white py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
               >
                 取消
               </button>
@@ -446,7 +447,7 @@ export function VehicleBooking() {
   )
 }
 
-/* 🛠️ SlotArea 元件 - 大幅強化已被預約與空白時段的文字對比度 */
+/* 🛠️ SlotArea 元件 */
 function SlotArea({
   label,
   booker,
@@ -467,23 +468,21 @@ function SlotArea({
       className={`group w-full flex items-center justify-between px-1.5 py-1 text-[11px] rounded transition-all border
         ${
           active
-            ? "bg-amber-100/80 border-amber-200 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-200 hover:text-rose-700 shadow-sm"
-            : "border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800"
+            ? "bg-amber-200 border-amber-300 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-300 hover:text-rose-700 shadow-sm" // 🎨 已佔用底色加深為飽和琥珀黃 (bg-amber-200)
+            : "border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-800" // 🎨 空檔字體與虛線邊框加深
         }`}
     >
-      {/* 狀態標籤（上午/下午）：在非作用時也保持一定的灰度清晰度 */}
-      <span className={`scale-90 origin-left tracking-tight font-medium ${active ? "text-amber-800/70 group-hover:text-rose-600/70" : "text-slate-400"}`}>
+      {/* 狀態標籤（上午/下午）- 加深灰度 */}
+      <span className={`scale-90 origin-left tracking-tight font-semibold ${active ? "text-amber-900/80 group-hover:text-rose-700" : "text-slate-500"}`}>
         {label}
       </span>
       
       {active ? (
-        // 姓名：加粗放大，顏色使用高對比深琥珀色
         <span className="truncate max-w-[46px] text-right font-black tracking-tight text-slate-950">
           {booker}
         </span>
       ) : (
-        // 空白檔：平時呈現微弱的灰色「+」或「登記」，更清晰好點擊
-        <span className="text-[9px] text-slate-300 group-hover:text-slate-500 font-bold transition-colors">
+        <span className="text-[10px] text-slate-400 group-hover:text-slate-600 font-bold transition-colors">
           +
         </span>
       )}
