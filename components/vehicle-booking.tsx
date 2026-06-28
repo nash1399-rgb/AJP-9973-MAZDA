@@ -17,7 +17,7 @@ import {
 const WEEKDAYS = ["一", "二", "三", "四", "五", "六", "日"]
 const PASSCODE = "1234"
 
-type Slot = "am" | "pm"
+type Slot = "am" | "pm" | "full"
 type BookMode = "am" | "pm" | "full"
 type BookingInfo = { name: string; docId: string }
 
@@ -74,11 +74,12 @@ export function VehicleBooking() {
     return `${year}-${month}-${day}-${slot}`
   }
 
-  function bookerOf(day: number, slot: Slot) {
+  // 修正型別安全：slot 只接受 'am' 或 'pm'
+  function bookerOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.name || ""
   }
 
-  function docIdOf(day: number, slot: Slot) {
+  function docIdOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.docId || ""
   }
 
@@ -108,14 +109,14 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
-  function requestBook(day: number, defaultSlot: Slot) {
+  function requestBook(day: number, defaultSlot: "am" | "pm") {
     setNameInput("")
     setError(false)
     setBookMode(defaultSlot)
     setPending({ kind: "book", day })
   }
 
-  function requestCancel(day: number, slot: Slot, name: string) {
+  function requestCancel(day: number, slot: "am" | "pm", name: string) {
     setCode("")
     setError(false)
     setPending({ kind: "cancel", day, slot, name })
@@ -163,7 +164,9 @@ export function VehicleBooking() {
           if (amId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", amId)))
           if (pmId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", pmId)))
         } else {
-          const targetDocId = docIdOf(pending.day, pending.slot)
+          // 確保型別轉換安全
+          const targetSlot = pending.slot === "full" ? "am" : pending.slot
+          const targetDocId = docIdOf(pending.day, targetSlot)
           if (targetDocId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", targetDocId)))
         }
         await Promise.all(deleteTasks)
@@ -185,43 +188,44 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#f8fafc] text-slate-800 overflow-x-hidden" // 調整為高質感明亮暖白襯底
+      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#f8fafc] text-slate-800 overflow-x-hidden"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      {/* Header card：半透明微光玻璃質感 */}
-      <header className="rounded-xl border-2 border-[#a3cfbb] bg-[#d1e7dd]/90 backdrop-blur-md px-5 py-4 shadow-sm transition-all duration-300">
-        <h1 className="text-balance text-lg font-black text-[#0f5132]">
+      {/* Header card - 邑菖工程顧問標題 (text-lg font-bold) */}
+      <header className="rounded-xl border-2 border-[#a3cfbb] bg-[#d1e7dd]/90 backdrop-blur-md px-5 py-4 shadow-sm">
+        <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
         <p className="mt-1 text-xs font-semibold text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* License plate banner：高飽和深綠襯托螢光字 */}
-      <div className="flex items-stretch gap-3 overflow-hidden rounded-xl border-2 border-[#146c43] bg-[#0f5132] p-3 text-white shadow-md transition-all duration-300">
-        <div className="flex flex-1 flex-col justify-center gap-1.5">
+      {/* License plate banner - 🛠️ 所有公務車資訊字體全面放大為 text-lg font-bold */}
+      <div className="flex flex-col gap-3 rounded-xl border-2 border-[#146c43] bg-[#0f5132] p-5 text-white shadow-md">
+        <div className="flex items-center justify-between border-b border-emerald-700 pb-2">
           <div className="flex items-center gap-2">
-            <span className="text-base font-black tracking-wide text-[#39ff14] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <span className="text-lg font-bold tracking-wide text-[#39ff14] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
               AJP-9973（95無鉛汽油）
             </span>
             <Fuel className="size-5 shrink-0 text-orange-400" aria-hidden="true" />
           </div>
-          <div className="text-xs font-semibold text-emerald-100">下次保養里程數 129526 公里</div>
-          <div className="text-xs font-semibold text-emerald-100">下次汽車檢驗日期 2026 年 12 月 27 日</div>
-          <div className="text-[11px] leading-relaxed text-emerald-200/90 font-medium">
-            保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
-            電話：03-5353897
-          </div>
+          <img
+            src="/images/ajp-9973.jpg"
+            alt="公務車照片"
+            className="w-16 h-12 rounded object-cover bg-neutral-800 border border-emerald-700"
+          />
         </div>
-        <img
-          src="/images/ajp-9973.jpg"
-          alt="公務車照片"
-          className="w-1/4 shrink-0 self-center rounded-md object-cover bg-neutral-800 min-h-[60px] border border-emerald-700 shadow shadow-black/20"
-        />
+        
+        {/* 核心資訊文字：全部同步修改為 text-lg font-bold 且提升行距 */}
+        <div className="flex flex-col gap-2 text-lg font-bold text-emerald-50/95 leading-relaxed">
+          <div>下次保養里程數 129526 公里</div>
+          <div>下次汽車檢驗日期 2026 年 12 月 27 日</div>
+          <div>保養廠：祥盛汽車 (新竹市經國路一段388之3號)</div>
+          <div>電話：03-5353897</div>
+        </div>
       </div>
 
-      {/* 日曆外框：精緻半透明莫蘭迪綠毛玻璃面板 */}
-      <section className="overflow-hidden rounded-xl border-2 border-[#bccc9a] bg-[#eaf4e3]/90 backdrop-blur-md p-3 shadow-xl transition-all duration-300">
-        
+      {/* Calendar 外框 */}
+      <section className="overflow-hidden rounded-xl border-2 border-[#bccc9a] bg-[#eaf4e3]/90 backdrop-blur-md p-3 shadow-xl">
         {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5 shadow-md">
           <button
@@ -244,7 +248,7 @@ export function VehicleBooking() {
         </div>
 
         {/* Weekday header */}
-        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-bold text-white shadow">
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-bold text-white shadow-sm">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
@@ -293,7 +297,7 @@ export function VehicleBooking() {
                           ? "border-rose-300"
                           : "border-[#c5e1a5]"
                   } 
-                  ${isOff ? "bg-rose-100/90" : "bg-white"}`} // 平日格改為純白色 (bg-white)，放假日採用飽和粉紅，大幅提升字體易讀性
+                  ${isOff ? "bg-rose-100/90" : "bg-white"}`}
               >
                 {/* 日曆格日期橫條 */}
                 <div className={`px-1 pt-0.5 pb-0.5 border-b-2 ${isOff ? "bg-rose-200/70 border-rose-200" : "bg-slate-100 border-slate-200"}`}>
@@ -307,7 +311,7 @@ export function VehicleBooking() {
                   </span>
                 </div>
 
-                {/* AM / PM Slots 互動區域 */}
+                {/* AM / PM Slots */}
                 <div className="flex flex-1 flex-col">
                   <SlotArea
                     label="上午"
@@ -335,7 +339,7 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* Modal 彈窗：採用極其精緻的半透明明亮毛玻璃特效 */}
+      {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 transition-all duration-300" onClick={closeModal}>
           <div className="w-full max-w-xs rounded-xl border-2 border-white/60 bg-white/95 p-5 text-slate-800 shadow-2xl backdrop-blur-lg" onClick={(e) => e.stopPropagation()}>
@@ -460,7 +464,6 @@ export function VehicleBooking() {
   )
 }
 
-/* 時段 SlotArea 元件 */
 function SlotArea({
   label,
   icon,
@@ -482,11 +485,10 @@ function SlotArea({
       aria-pressed={active}
       className={`flex flex-1 flex-col items-center justify-center px-0.5 py-1.5 text-xs font-bold transition-all duration-300 ease-in-out ${
         active
-          ? "bg-gradient-to-br from-amber-50 to-amber-100/90 text-amber-950 hover:from-amber-100 hover:to-amber-200" // 預約成功：輕微金黃到琥珀色漸層，文字極深，非常好讀
+          ? "bg-gradient-to-br from-amber-50 to-amber-100/90 text-amber-950 hover:from-amber-100 hover:to-amber-200"
           : "text-slate-700 hover:bg-slate-200/50"
       }`}
     >
-      {/* 狀態標籤與小圖示 */}
       <div className="flex items-center gap-1 text-[9px] font-bold opacity-70 scale-90 text-slate-500 leading-none">
         {icon}
         <span>{label}</span>
@@ -500,7 +502,7 @@ function SlotArea({
         </div>
       ) : (
         <div className="flex items-center justify-center min-h-[26px] text-slate-400">
-          <Plus className="size-3.5 stroke-[3]" /> {/* 空白時段顯示利落的加號圖示 */}
+          <Plus className="size-3.5 stroke-[3]" />
         </div>
       )}
     </button>
