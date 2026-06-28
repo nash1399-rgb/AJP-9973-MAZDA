@@ -70,7 +70,6 @@ export function VehicleBooking() {
     return arr
   }, [firstWeekday, daysInMonth])
 
-  font-bold
   function keyOf(day: number, slot: Slot) {
     return `${year}-${month}-${day}-${slot}`
   }
@@ -187,7 +186,7 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* 🏛️ Header card：🎨 重新配色的高質感莫蘭迪深翠綠（bg-[#2d4a43]），字體改為亮色高對比 */}
+      {/* 🏛️ Header card */}
       <header className="rounded-xl border border-[#213732] bg-[#2d4a43] px-5 py-4 shadow-md transition-all duration-300">
         <h1 className="text-balance text-base font-bold text-white tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           邑菖工程顧問有限公司－公務車預約系統
@@ -305,7 +304,7 @@ export function VehicleBooking() {
                           : "border-slate-300 bg-white"
                   }`}
               >
-                {/* 日曆格日期橫條 */}
+                {/* 日曆格日期與節日區塊 */}
                 <div className={`px-1.5 pt-1 pb-1 flex flex-col items-start justify-start border-b gap-0.5 ${isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
                   <span className={`text-sm font-extrabold leading-none ${
                     isToday ? "text-slate-950 underline decoration-2 underline-offset-2" : isOff ? "text-rose-600" : "text-slate-800"
