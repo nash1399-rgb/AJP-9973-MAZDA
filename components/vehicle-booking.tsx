@@ -70,11 +70,11 @@ export function VehicleBooking() {
     return arr
   }, [firstWeekday, daysInMonth])
 
+  font-bold
   function keyOf(day: number, slot: Slot) {
     return `${year}-${month}-${day}-${slot}`
   }
 
-  // 修正型別安全：slot 只接受 'am' 或 'pm'
   function bookerOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.name || ""
   }
@@ -97,7 +97,6 @@ export function VehicleBooking() {
     setMonth(m)
   }
 
-  // 左右滑動切換月份
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
   }
@@ -109,7 +108,6 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
-  // 修正型別安全
   function requestBook(day: number, defaultSlot: "am" | "pm") {
     setNameInput("")
     setError(false)
@@ -189,12 +187,12 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* 🏛️ Header card */}
-      <header className="rounded-xl border border-slate-300 bg-white px-5 py-4 shadow-sm">
-        <h1 className="text-balance text-base font-bold text-slate-900 tracking-tight">
+      {/* 🏛️ Header card：🎨 重新配色的高質感莫蘭迪深翠綠（bg-[#2d4a43]），字體改為亮色高對比 */}
+      <header className="rounded-xl border border-[#213732] bg-[#2d4a43] px-5 py-4 shadow-md transition-all duration-300">
+        <h1 className="text-balance text-base font-bold text-white tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-0.5 text-xs font-medium text-slate-400">線上即時公務車預約登記平台</p>
+        <p className="mt-0.5 text-xs font-medium text-emerald-200/80">線上即時公務車預約登記平台</p>
       </header>
 
       {/* 🚗 車牌與保養資訊欄塊 */}
@@ -307,7 +305,7 @@ export function VehicleBooking() {
                           : "border-slate-300 bg-white"
                   }`}
               >
-                {/* 🛠️ 日曆格日期與節日區塊：改為 flex-col 垂直排列，強迫節日名稱精確切到下一行 */}
+                {/* 日曆格日期橫條 */}
                 <div className={`px-1.5 pt-1 pb-1 flex flex-col items-start justify-start border-b gap-0.5 ${isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
                   <span className={`text-sm font-extrabold leading-none ${
                     isToday ? "text-slate-950 underline decoration-2 underline-offset-2" : isOff ? "text-rose-600" : "text-slate-800"
