@@ -183,7 +183,7 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden" // 🎨 背景加深為質感灰藍色，襯托白色日曆卡片
+      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
       {/* 🏛️ Header card */}
@@ -194,29 +194,40 @@ export function VehicleBooking() {
         <p className="mt-0.5 text-xs font-medium text-slate-500">線上即時公務車預約登記平台</p>
       </header>
 
-      {/* 🚗 License plate banner */}
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-[#1e293b] p-4 text-white shadow-md">
-        <div className="flex-1 flex flex-col gap-1 text-sm font-medium text-slate-300">
-          <div className="flex items-center gap-2 border-b border-slate-700 pb-1.5 mb-1.5">
-            <span className="text-base font-bold tracking-wide text-white">
-              AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
-            </span>
-            <Fuel className="size-4 text-slate-400 shrink-0" />
+      {/* 🚗 車牌與保養資訊欄塊 */}
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-[#1e293b] p-4 text-white shadow-md">
+        
+        {/* 上半部：車牌資訊與照片左右排列（紅色框框位置） */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 flex flex-col gap-1.5 text-sm font-medium text-slate-300">
+            <div className="flex items-center gap-2 border-b border-slate-700 pb-1.5 mb-0.5">
+              <span className="text-base font-bold tracking-wide text-white">
+                AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
+              </span>
+              <Fuel className="size-4 text-slate-400 shrink-0" />
+            </div>
+            <div className="text-slate-200">下次保養里程數：<span className="font-semibold text-white">129526 公里</span></div>
+            <div className="text-slate-200">下次汽車檢驗日：<span className="font-semibold text-white">2026/12/27</span></div>
           </div>
-          <div className="text-slate-200">下次保養里程數：<span className="font-semibold text-white">129526 公里</span></div>
-          <div className="text-slate-200">下次汽車檢驗日：<span className="font-semibold text-white">2026/12/27</span></div>
-          <div className="text-xs text-slate-400 mt-1 leading-normal">
-            保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
-            電話：03-5353897
+          
+          {/* 🔴 紅色框框：調整至指定大小與右側位置 */}
+          <div className="w-[84px] h-[64px] shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-neutral-800 shadow-sm">
+            <img
+              src="/images/ajp-9973.jpg"
+              alt="公務車照片"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
-        
-        <div className="w-[80px] h-[96px] shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-neutral-800 shadow-sm">
-          <img
-            src="/images/ajp-9973.jpg"
-            alt="公務車照片"
-            className="w-full h-full object-cover"
-          />
+
+        {/* 🟢 綠色框框：保養廠與電話放大字體，獨立水平排列 */}
+        <div className="border-t border-slate-700/60 pt-2.5 mt-0.5 text-xs text-slate-300 leading-relaxed flex flex-col gap-0.5">
+          <div className="text-[13px] font-bold text-white tracking-wide">
+            保養廠：祥盛汽車 <span className="font-normal text-slate-400 text-xs">(新竹市經國路一段388之3號)</span>
+          </div>
+          <div className="text-[13px] font-bold text-amber-400">
+            電話：03-5353897
+          </div>
         </div>
       </div>
 
@@ -244,7 +255,7 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* 禮拜標頭 - 加深灰色背景與字體 */}
+        {/* 禮拜標頭 */}
         <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-200/80 text-center text-xs font-bold text-slate-700 border border-slate-300">
           {WEEKDAYS.map((w, i) => (
             <div
@@ -258,7 +269,7 @@ export function VehicleBooking() {
           ))}
         </div>
 
-        {/* 日曆網格 - 💡 邊框全面加深為 border-slate-300，清晰明瞭 */}
+        {/* 日曆網格 */}
         <div className="mt-2 grid grid-cols-7 gap-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
@@ -290,8 +301,8 @@ export function VehicleBooking() {
                       : booked
                         ? "border-amber-400 bg-amber-50/20"
                         : isOff
-                          ? "border-rose-300 bg-rose-100/30" // 🎨 假日的粉紅襯底加深
-                          : "border-slate-300 bg-white" // 🎨 平日格子的線條邊框加深
+                          ? "border-rose-300 bg-rose-100/30"
+                          : "border-slate-300 bg-white"
                   }`}
               >
                 {/* 日曆格日期橫條 */}
@@ -382,7 +393,6 @@ export function VehicleBooking() {
                   })}
                 </div>
 
-                {/* 姓名輸入框 */}
                 <input
                   type="text"
                   autoFocus
@@ -468,11 +478,10 @@ function SlotArea({
       className={`group w-full flex items-center justify-between px-1.5 py-1 text-[11px] rounded transition-all border
         ${
           active
-            ? "bg-amber-200 border-amber-300 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-300 hover:text-rose-700 shadow-sm" // 🎨 已佔用底色加深為飽和琥珀黃 (bg-amber-200)
-            : "border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-800" // 🎨 空檔字體與虛線邊框加深
+            ? "bg-amber-200 border-amber-300 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-300 hover:text-rose-700 shadow-sm"
+            : "border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-800"
         }`}
     >
-      {/* 狀態標籤（上午/下午）- 加深灰度 */}
       <span className={`scale-90 origin-left tracking-tight font-semibold ${active ? "text-amber-900/80 group-hover:text-rose-700" : "text-slate-500"}`}>
         {label}
       </span>
