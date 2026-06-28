@@ -35,6 +35,9 @@ export function VehicleBooking() {
   const [nameInput, setNameInput] = useState("")
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
+  
+  // 🏎️ 新增法拉利動畫狀態控制
+  const [showFerrari, setShowFerrari] = useState(false)
 
   const touchStartX = useRef<number | null>(null)
 
@@ -148,6 +151,14 @@ export function VehicleBooking() {
           )
         }
         await Promise.all(tasks)
+
+        // 🏎️ 預約登記成功，啟動法拉利特效
+        closeModal()
+        setShowFerrari(true)
+        setTimeout(() => {
+          setShowFerrari(false)
+        }, 1300) // 1.3 秒後動畫結束隱藏
+        return
       } else {
         if (code !== PASSCODE) {
           setError(true)
@@ -185,10 +196,20 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100" // 恢復純黑背景
+      className="relative mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100 overflow-x-hidden"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      {/* Header card：加入絲滑過渡 */}
+      
+      {/* 🏎️ 法拉利跑過去的全螢幕噴射起動動畫 */}
+      {showFerrari && (
+        <div className="pointer-events-none fixed inset-x-0 top-1/3 z-50 flex items-center justify-start">
+          <div className="animate-[marquee_1.2s_ease-in-out_forward] text-5xl select-none filter drop-shadow-[0_4px_12px_rgba(239,68,68,0.6)]">
+            🏎️💨 <span className="text-xs font-black tracking-widest text-red-500 bg-black/80 px-2 py-0.5 rounded-full border border-red-500/30">FERRARI GO!</span>
+          </div>
+        </div>
+      )}
+
+      {/* Header card */}
       <header className="rounded-xl border-2 border-[#a3cfbb]/30 bg-[#0f5132]/20 backdrop-blur-md px-5 py-4 shadow-lg transition-all duration-300 ease-in-out">
         <h1 className="text-balance text-lg font-black text-[#39ff14] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
           邑菖工程顧問有限公司－公務車預約系統
@@ -207,8 +228,10 @@ export function VehicleBooking() {
           </div>
           <div className="text-xs font-semibold text-slate-300">下次保養里程數 129526 公里</div>
           <div className="text-xs font-semibold text-slate-300">下次汽車檢驗日期 2026 年 12 月 27 日</div>
-          <div className="text-[11px] leading-tight text-slate-400 font-medium">
-            保養廠：祥盛汽車 (新竹市經國路一段388之3號) 電話：03-5353897
+          {/* 🛠️ 已修正：將電話號碼成功換到下一行顯示 */}
+          <div className="text-[11px] leading-relaxed text-slate-400 font-medium">
+            保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
+            電話：03-5353897
           </div>
         </div>
         <img
@@ -218,7 +241,7 @@ export function VehicleBooking() {
         />
       </div>
 
-      {/* 🔮 日曆外框：進化為半透明深綠色毛玻璃外框，搭配加粗質感線條 */}
+      {/* 日曆外框 */}
       <section className="overflow-hidden rounded-xl border-2 border-[#0f5132]/50 bg-[#0f5132]/10 backdrop-blur-md p-3 shadow-2xl transition-all duration-300 ease-in-out">
         
         {/* Calendar header */}
@@ -292,7 +315,7 @@ export function VehicleBooking() {
                           ? "border-rose-900/50"
                           : "border-emerald-950/40"
                   } 
-                  ${isOff ? "bg-rose-950/20" : "bg-emerald-950/30"}`} // 配合純黑背景，格子底色改為沉穩高質感的暗綠與暗紅
+                  ${isOff ? "bg-rose-950/20" : "bg-emerald-950/30"}`}
               >
                 {/* 日曆格日期橫條 */}
                 <div className={`px-1 pt-0.5 pb-0.5 border-b-2 ${isOff ? "bg-rose-900/30 border-rose-900/20" : "bg-emerald-900/40 border-emerald-950/30"}`}>
@@ -306,7 +329,7 @@ export function VehicleBooking() {
                   </span>
                 </div>
 
-                {/* AM / PM Slots 互動區域 */}
+                {/* AM / PM Slots */}
                 <div className="flex flex-1 flex-col bg-black/20">
                   <SlotArea
                     label="上午"
@@ -334,7 +357,7 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* 🔮 Modal 彈窗：升級為質感強烈的暗黑半透明毛玻璃特效 (Glassmorphism) */}
+      {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 transition-all duration-300 ease-in-out" onClick={closeModal}>
           <div className="w-full max-w-xs rounded-xl border-2 border-[#0f5132]/50 bg-[#121212]/90 p-5 text-slate-100 shadow-2xl backdrop-blur-lg" onClick={(e) => e.stopPropagation()}>
@@ -480,11 +503,10 @@ function SlotArea({
       aria-pressed={active}
       className={`flex flex-1 flex-col items-center justify-center px-0.5 py-1.5 text-xs font-bold transition-all duration-300 ease-in-out ${
         active
-          ? "bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 hover:from-amber-300 hover:to-amber-500 font-black shadow-inner" // 預約成功：金黃到淡琥珀色漸層
+          ? "bg-gradient-to-br from-amber-400 to-amber-600 text-amber-950 hover:from-amber-300 hover:to-amber-500 font-black shadow-inner"
           : "text-slate-400 hover:bg-emerald-900/40 hover:text-[#39ff14]"
       }`}
     >
-      {/* 狀態圖示化：精緻小圖示 */}
       <div className={`flex items-center gap-1 text-[9px] font-bold opacity-70 scale-90 leading-none ${active ? "text-amber-950/80" : "text-slate-400"}`}>
         {icon}
         <span>{label}</span>
@@ -498,7 +520,7 @@ function SlotArea({
         </div>
       ) : (
         <div className="flex items-center justify-center min-h-[26px]">
-          <Plus className="size-3.5 stroke-[3] opacity-40 hover:opacity-100 transition-opacity" /> {/* 空白處改為俐落的 + 號圖示 */}
+          <Plus className="size-3.5 stroke-[3] opacity-40 hover:opacity-100 transition-opacity" />
         </div>
       )}
     </button>
