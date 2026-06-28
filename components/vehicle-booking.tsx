@@ -196,7 +196,8 @@ export function VehicleBooking() {
           <div className="text-[11px] font-medium text-slate-300 mt-1">下次保養里程：<span className="text-amber-400 font-bold">129,526 KM</span></div>
           <div className="text-[11px] font-medium text-slate-300">下次定檢日期：<span className="text-emerald-400 font-bold">2026/12/27</span></div>
           <div className="text-[10px] text-slate-400 leading-tight mt-0.5 border-t border-slate-700/40 pt-1">
-            保養廠：祥盛汽車 (經國路一段388之3號)
+            保養廠：祥盛汽車 (新竹市經國路一段388之3號)
+            電話：03-5353897
           </div>
         </div>
         <img
