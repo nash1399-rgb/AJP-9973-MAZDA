@@ -189,41 +189,45 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#f8fafc] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      {/* 🏛️ Header card：莫蘭迪優雅淺綠底色 */}
-      <header className="rounded-xl border-2 border-[#b8dbca] bg-[#d1e7dd] px-5 py-4 shadow-sm">
-        <h1 className="text-balance text-lg font-black text-[#0f5132]">
+      {/* Header card */}
+      <header className="rounded-xl border-2 border-[#a3cfbb] bg-[#d1e7dd]/90 backdrop-blur-md px-5 py-4 shadow-sm">
+        <h1 className="text-balance text-lg font-bold text-[#0f5132]">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-1 text-xs font-bold text-[#146c43]">線上即時預約的登記平台</p>
+        <p className="mt-1 text-xs font-semibold text-[#146c43]">線上即時預約的登記平台</p>
       </header>
 
-      {/* 🚗 License plate banner：高雅莫蘭迪深綠底色，字體全面放大至 text-lg font-bold */}
-      <div className="flex flex-col gap-2 rounded-xl border-2 border-[#0a3622] bg-[#0f5132] p-4 text-white shadow-md">
-        <div className="flex items-center gap-2 border-b border-white/20 pb-1.5">
-          <span className="text-lg font-black tracking-wide text-[#39ff14]">
-            AJP-9973（95無鉛汽油）
-          </span>
-          <Fuel className="size-5 shrink-0 text-orange-400" aria-hidden="true" />
-        </div>
-        <div className="text-lg font-bold text-slate-100">下次保養里程數 129526 公里</div>
-        <div className="text-lg font-bold text-slate-100">下次汽車檢驗日期 2026 年 12 月 27 日</div>
-        <div className="text-lg font-bold text-emerald-200 leading-relaxed pt-0.5">
-          保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
-          電話：03-5353897
-          <div className="mt-2 overflow-hidden rounded-md border border-emerald-800 shadow-inner">
-            <img
-              src="/images/ajp-9973.jpg"
-              alt="公務車照片"
-              className="w-full h-32 object-cover bg-neutral-900"
-            />
+      {/* 🚗 License plate banner：已重構為左右橫向排版，右側放置縮小的汽車照片 */}
+      <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-[#0a3622] bg-[#0f5132] p-4 text-white shadow-md">
+        {/* 左側：大字級保養與檢驗文字資訊 */}
+        <div className="flex-1 flex flex-col gap-1.5 text-lg font-bold text-slate-100 leading-relaxed">
+          <div className="flex items-center gap-2 border-b border-white/20 pb-1 mb-1">
+            <span className="text-lg font-black tracking-wide text-[#39ff14]">
+              AJP-9973（95無鉛）
+            </span>
+            <Fuel className="size-5 text-orange-400 shrink-0" />
           </div>
+          <div>下次保養里程數 129526 公里</div>
+          <div>下次汽車檢驗日期 2026 年 12 月 27 日</div>
+          <div className="text-emerald-200">
+            保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
+            電話：03-5353897
+          </div>
+        </div>
+        
+        {/* 右側：精緻縮小版的汽車照片 (寬度固定 88px 且等比例裁剪) */}
+        <div className="w-[88px] h-[110px] shrink-0 overflow-hidden rounded-lg border border-emerald-800 shadow-inner bg-neutral-900">
+          <img
+            src="/images/ajp-9973.jpg"
+            alt="公務車照片"
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
 
-      {/* 📅 日曆主體外框：莫蘭迪綠襯托 */}
+      {/* Calendar 外框 */}
       <section className="overflow-hidden rounded-xl border-2 border-[#bbd4b8] bg-[#eaf2e3] p-3 shadow-xl">
-        
-        {/* 月份切換標頭：深綠色背景 */}
+        {/* Calendar header */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5 shadow-md">
           <button
             type="button"
@@ -244,7 +248,7 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* 禮拜一至禮拜日標頭：深綠色背景，六日文字改為鮮紅色 text-red-500 */}
+        {/* Weekday header */}
         <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-bold text-white border border-black/10">
           {WEEKDAYS.map((w, i) => (
             <div
@@ -258,7 +262,7 @@ export function VehicleBooking() {
           ))}
         </div>
 
-        {/* 日曆網格 */}
+        {/* Day grid */}
         <div className="mt-2 grid grid-cols-7 gap-1.5" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
@@ -294,7 +298,7 @@ export function VehicleBooking() {
                           ? "border-rose-300"
                           : "border-[#bccc9a]"
                   } 
-                  ${isOff ? "bg-rose-100" : "bg-white"}`} // 恢復高對比亮色系：假日粉紅底、平日純白底
+                  ${isOff ? "bg-rose-100" : "bg-white"}`}
               >
                 {/* 日曆格日期橫條 */}
                 <div className={`px-1 pt-0.5 pb-0.5 border-b-2 ${isOff ? "bg-rose-200 border-rose-300" : "bg-slate-100 border-slate-200"}`}>
@@ -308,7 +312,7 @@ export function VehicleBooking() {
                   </span>
                 </div>
 
-                {/* AM / PM 時段：取消圖樣，更換為純文字大字體，空白處顯示「空」 */}
+                {/* AM / PM Slots */}
                 <div className="flex flex-1 flex-col">
                   <SlotArea
                     label="上午"
@@ -334,7 +338,7 @@ export function VehicleBooking() {
         《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
       </p>
 
-      {/* Modal 彈窗：白底黑字高對比 */}
+      {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-fade-in" onClick={closeModal}>
           <div className="w-full max-w-xs rounded-xl border-2 border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -404,7 +408,7 @@ export function VehicleBooking() {
               <>
                 <p className="mt-2.5 text-sm font-bold text-slate-600">
                   取消 <span className="font-black text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段的預約：<br />
-                  <span className="font-black text-amber-800">{monthBookerName}</span>，請輸入管制密碼。
+                  <span className="font-black text-amber-900">{monthBookerName}</span>，請輸入管制密碼。
                 </p>
                 <input
                   type="password"
@@ -450,7 +454,6 @@ export function VehicleBooking() {
   )
 }
 
-/* 🛠️ SlotArea 元件：放大字體，取消全部圖樣，空檔恢復顯示「空」 */
 function SlotArea({
   label,
   booker,
@@ -474,19 +477,16 @@ function SlotArea({
           : "text-[#0f5132] hover:bg-slate-200/60"
       }`}
     >
-      {/* 純文字標籤 */}
       <span className="shrink-0 text-[11px] font-bold text-slate-600 leading-none">{label}</span>
       
       {active ? (
         <div className="w-full flex items-center justify-center min-h-[30px] pt-0.5">
-          {/* 姓名放大加粗 */}
           <span className="w-full truncate px-0.5 text-center text-sm font-black tracking-tight text-amber-950">
             {booker}
           </span>
         </div>
       ) : (
         <div className="flex items-center justify-center min-h-[30px] pt-0.5">
-          {/* 取消圖標，放大「空」字 */}
           <span className="text-xs text-slate-400 font-bold">空</span>
         </div>
       )}
