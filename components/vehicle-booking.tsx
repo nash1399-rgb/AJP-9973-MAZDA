@@ -74,6 +74,7 @@ export function VehicleBooking() {
     return `${year}-${month}-${day}-${slot}`
   }
 
+  // 修正型別安全：slot 只接受 'am' 或 'pm'
   function bookerOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.name || ""
   }
@@ -186,12 +187,12 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* 🏛️ Header card */}
-      <header className="rounded-xl border border-[#213732] bg-[#2d4a43] px-5 py-4 shadow-md transition-all duration-300">
-        <h1 className="text-balance text-base font-bold text-white tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+      {/* 🏛️ Header card：🎨 重新配色的高質感莫蘭迪暖燕麥色底（bg-[#e2dcd5]）搭配高對比碳黑字體（text-[#1e293b]） */}
+      <header className="rounded-xl border border-[#d5cdc5] bg-[#e2dcd5] px-5 py-4 shadow-sm transition-all duration-300">
+        <h1 className="text-balance text-base font-bold text-[#1e293b] tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-0.5 text-xs font-medium text-emerald-200/80">線上即時公務車預約登記平台</p>
+        <p className="mt-0.5 text-xs font-semibold text-slate-500">線上即時公務車預約登記平台</p>
       </header>
 
       {/* 🚗 車牌與保養資訊欄塊 */}
