@@ -191,26 +191,25 @@ export function VehicleBooking() {
         <h1 className="text-balance text-base font-bold text-slate-900 tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-0.5 text-xs font-medium text-slate-500">線上即時公務車預約登記平台</p>
+        <p className="mt-0.5 text-xs font-medium text-slate-400">線上即時公務車預約登記平台</p>
       </header>
 
       {/* 🚗 車牌與保養資訊欄塊 */}
       <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-[#1e293b] p-4 text-white shadow-md">
         
-        {/* 上半部：車牌資訊與照片左右排列（紅色框框位置） */}
+        {/* 上半部：車牌資訊與照片左右排列 */}
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 flex flex-col gap-1.5 text-sm font-medium text-slate-300">
+          <div className="flex-1 flex flex-col gap-1.5 text-base font-bold text-slate-100 leading-relaxed">
             <div className="flex items-center gap-2 border-b border-slate-700 pb-1.5 mb-0.5">
-              <span className="text-base font-bold tracking-wide text-white">
-                AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
+              <span className="text-base font-bold tracking-wide text-[#39ff14]">
+                AJP-9973 <span className="text-sm font-normal text-slate-400">（95無鉛）</span>
               </span>
-              <Fuel className="size-4 text-slate-400 shrink-0" />
+              <Fuel className="size-4.5 text-slate-400 shrink-0" />
             </div>
-            <div className="text-slate-200">下次保養里程數：<span className="font-semibold text-white">129526 公里</span></div>
-            <div className="text-slate-200">下次汽車檢驗日：<span className="font-semibold text-white">2026/12/27</span></div>
+            <div>下次保養里程數：<span className="font-bold text-white">129526 公里</span></div>
+            <div>下次汽車檢驗日：<span className="font-bold text-white">2026/12/27</span></div>
           </div>
           
-          {/* 🔴 紅色框框：調整至指定大小與右側位置 */}
           <div className="w-[84px] h-[64px] shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-neutral-800 shadow-sm">
             <img
               src="/images/ajp-9973.jpg"
@@ -220,12 +219,12 @@ export function VehicleBooking() {
           </div>
         </div>
 
-        {/* 🟢 綠色框框：保養廠與電話放大字體，獨立水平排列 */}
-        <div className="border-t border-slate-700/60 pt-2.5 mt-0.5 text-xs text-slate-300 leading-relaxed flex flex-col gap-0.5">
-          <div className="text-[13px] font-bold text-white tracking-wide">
-            保養廠：祥盛汽車 <span className="font-normal text-slate-400 text-xs">(新竹市經國路一段388之3號)</span>
+        {/* 下半部：保養廠與電話 */}
+        <div className="border-t border-slate-700/60 pt-2.5 mt-0.5 text-base font-bold text-slate-200 leading-relaxed flex flex-col gap-0.5">
+          <div>
+            保養廠：祥盛汽車 <span className="font-normal text-slate-400 text-sm">(新竹市經國路一段388之3號)</span>
           </div>
-          <div className="text-[13px] font-bold text-amber-400">
+          <div className="text-amber-400">
             電話：03-5353897
           </div>
         </div>
@@ -312,8 +311,9 @@ export function VehicleBooking() {
                   }`}>
                     {day}
                   </span>
+                  {/* 🛠️ 優化節日名稱顯示：字體加粗、顏色加深、移除縮放、允許適度折行 */}
                   {holiday && (
-                    <span className="block text-[8px] font-bold scale-90 text-rose-600 truncate max-w-[32px]">
+                    <span className="block text-[9px] font-extrabold text-rose-700 text-right leading-tight max-w-[42px] break-all">
                       {holiday}
                     </span>
                   )}
@@ -347,7 +347,7 @@ export function VehicleBooking() {
       {/* Modal 彈窗 */}
       {pending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-xl border border-slate-300 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-xs rounded-xl border border-slate-3  00 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h2 className="text-sm font-bold text-slate-900">
                 {pending.kind === "book" ? "預約登記" : "取消預約"}
@@ -457,7 +457,6 @@ export function VehicleBooking() {
   )
 }
 
-/* 🛠️ SlotArea 元件 */
 function SlotArea({
   label,
   booker,
