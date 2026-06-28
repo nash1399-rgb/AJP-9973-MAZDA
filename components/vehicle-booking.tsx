@@ -74,7 +74,6 @@ export function VehicleBooking() {
     return `${year}-${month}-${day}-${slot}`
   }
 
-  // 修正型別安全：slot 只接受 'am' 或 'pm'
   function bookerOf(day: number, slot: "am" | "pm") {
     return bookings[keyOf(day, slot)]?.name || ""
   }
@@ -187,7 +186,7 @@ export function VehicleBooking() {
       className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* 🏛️ Header card：🎨 重新配色的高質感莫蘭迪暖燕麥色底（bg-[#e2dcd5]）搭配高對比碳黑字體（text-[#1e293b]） */}
+      {/* 🏛️ Header card */}
       <header className="rounded-xl border border-[#d5cdc5] bg-[#e2dcd5] px-5 py-4 shadow-sm transition-all duration-300">
         <h1 className="text-balance text-base font-bold text-[#1e293b] tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
@@ -476,19 +475,21 @@ function SlotArea({
       type="button"
       onClick={active ? onCancel : onBook}
       aria-pressed={active}
-      className={`group w-full flex items-center justify-between px-1.5 py-1 text-[11px] rounded transition-all border
+      className={`group w-full flex items-center justify-between px-1 py-1 text-[11px] rounded transition-all border min-h-[26px]
         ${
           active
             ? "bg-amber-200 border-amber-300 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-300 hover:text-rose-700 shadow-sm"
             : "border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-800"
         }`}
     >
-      <span className={`scale-90 origin-left tracking-tight font-semibold ${active ? "text-amber-900/80 group-hover:text-rose-700" : "text-slate-500"}`}>
+      {/* 🛠️ 左側標籤稍微縮小，釋放更多空間給名字 */}
+      <span className={`scale-75 origin-left tracking-tighter font-semibold ${active ? "text-amber-900/80 group-hover:text-rose-700" : "text-slate-500"}`}>
         {label}
       </span>
       
       {active ? (
-        <span className="truncate max-w-[46px] text-right font-black tracking-tight text-slate-950">
+        /* 🛠️ 核心優化：移除 max-w 與 truncate，改用 break-all 允許在寬度不足時自動換行，字體改為 text-[11px] 確保大名完美裝得下 */
+        <span className="flex-1 text-right font-black tracking-tighter text-slate-950 break-all leading-none pl-0.5 text-[11px]">
           {booker}
         </span>
       ) : (
