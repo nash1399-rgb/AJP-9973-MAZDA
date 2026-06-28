@@ -96,7 +96,6 @@ export function VehicleBooking() {
     setMonth(m)
   }
 
-  // 左右滑動切換月份
   function onTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
   }
@@ -126,12 +125,10 @@ export function VehicleBooking() {
     try {
       if (pending.kind === "book") {
         const name = nameInput.trim()
-        
         if (!name) { 
           setError(true)
           return
         }
-        
         const tasks: Promise<any>[] = []
         if ((bookMode === "am" || bookMode === "full") && !bookerOf(pending.day, "am")) {
           tasks.push(
@@ -186,75 +183,76 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#f8fafc] text-slate-900 overflow-x-hidden"
-      style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
+      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#f8fafc] text-slate-900 overflow-x-hidden"
+      style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* Header card */}
-      <header className="rounded-xl border-2 border-[#a3cfbb] bg-[#d1e7dd]/90 backdrop-blur-md px-5 py-4 shadow-sm">
-        <h1 className="text-balance text-lg font-bold text-[#0f5132]">
+      {/* 🏛️ Header card：乾淨白底加微弱陰影，標準進階 SaaS 質感 */}
+      <header className="rounded-xl border border-slate-200/60 bg-white px-5 py-4 shadow-sm">
+        <h1 className="text-balance text-base font-bold text-slate-900 tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
-        <p className="mt-1 text-xs font-semibold text-[#146c43]">線上即時預約的登記平台</p>
+        <p className="mt-0.5 text-xs font-medium text-slate-400">線上即時公務車預約登記平台</p>
       </header>
 
-      {/* 🚗 License plate banner：已重構為左右橫向排版，右側放置縮小的汽車照片 */}
-      <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-[#0a3622] bg-[#0f5132] p-4 text-white shadow-md">
-        {/* 左側：大字級保養與檢驗文字資訊 */}
-        <div className="flex-1 flex flex-col gap-1.5 text-lg font-bold text-slate-100 leading-relaxed">
-          <div className="flex items-center gap-2 border-b border-white/20 pb-1 mb-1">
-            <span className="text-lg font-black tracking-wide text-[#39ff14]">
-              AJP-9973（95無鉛）
+      {/* 🚗 License plate banner：高雅沉穩的莫蘭迪鐵灰綠，重塑文字粗細階層 */}
+      <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-700 bg-[#334155] p-4 text-white shadow-sm">
+        {/* 左側：精緻化的文字階層 */}
+        <div className="flex-1 flex flex-col gap-1 text-sm font-medium text-slate-300">
+          <div className="flex items-center gap-2 border-b border-slate-600/50 pb-1.5 mb-1.5">
+            <span className="text-base font-bold tracking-wide text-white">
+              AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
             </span>
-            <Fuel className="size-5 text-orange-400 shrink-0" />
+            <Fuel className="size-4 text-slate-400 shrink-0" />
           </div>
-          <div>下次保養里程數 129526 公里</div>
-          <div>下次汽車檢驗日期 2026 年 12 月 27 日</div>
-          <div className="text-emerald-200">
+          <div className="text-slate-200">下次保養里程數：<span className="font-semibold text-white">129526 公里</span></div>
+          <div className="text-slate-200">下次汽車檢驗日：<span className="font-semibold text-white">2026/12/27</span></div>
+          <div className="text-xs text-slate-400 mt-1 leading-normal">
             保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
             電話：03-5353897
           </div>
         </div>
         
-        {/* 右側：精緻縮小版的汽車照片 (寬度固定 88px 且等比例裁剪) */}
-        <div className="w-[88px] h-[110px] shrink-0 overflow-hidden rounded-lg border border-emerald-800 shadow-inner bg-neutral-900">
+        {/* 右側：縮小照片 */}
+        <div className="w-[80px] h-[96px] shrink-0 overflow-hidden rounded-lg border border-slate-600 bg-neutral-800 shadow-sm">
           <img
             src="/images/ajp-9973.jpg"
             alt="公務車照片"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover grayscale-[15%]"
           />
         </div>
       </div>
 
-      {/* Calendar 外框 */}
-      <section className="overflow-hidden rounded-xl border-2 border-[#bbd4b8] bg-[#eaf2e3] p-3 shadow-xl">
-        {/* Calendar header */}
-        <div className="flex items-center justify-between rounded-lg bg-[#0f5132] px-2 py-2.5 shadow-md">
+      {/* 📅 日曆主體外框：改為乾淨優雅的純白卡片，拋棄複雜的綠底 */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+        
+        {/* 月份切換標頭：深色極簡風格 */}
+        <div className="flex items-center justify-between rounded-lg bg-slate-900 px-2 py-2 shadow-sm">
           <button
             type="button"
             onClick={() => changeMonth(-1)}
-            className="flex size-9 items-center justify-center rounded-md text-slate-300 transition-all active:scale-95 hover:bg-black/20 hover:text-white"
+            className="flex size-8 items-center justify-center rounded-md text-slate-400 transition-colors active:scale-95 hover:bg-slate-800 hover:text-white"
           >
-            <ChevronLeft className="size-5" />
+            <ChevronLeft className="size-4" />
           </button>
-          <span className="select-none text-lg font-black tracking-widest text-white">
+          <span className="select-none text-sm font-semibold tracking-wider text-white">
             {year} 年 {month} 月
           </span>
           <button
             type="button"
             onClick={() => changeMonth(1)}
-            className="flex size-9 items-center justify-center rounded-md text-slate-300 transition-all active:scale-95 hover:bg-black/20 hover:text-white"
+            className="flex size-8 items-center justify-center rounded-md text-slate-400 transition-colors active:scale-95 hover:bg-slate-800 hover:text-white"
           >
-            <ChevronRight className="size-5" />
+            <ChevronRight className="size-4" />
           </button>
         </div>
 
-        {/* Weekday header */}
-        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-[#0f5132] text-center text-sm font-bold text-white border border-black/10">
+        {/* 禮拜標頭：低調淡灰底色 */}
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-50 text-center text-xs font-semibold text-slate-500 border border-slate-100">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
-              className={`border-r-2 border-white/10 py-1.5 last:border-r-0 ${
-                i === 5 || i === 6 ? "font-black text-red-500 bg-white/10" : "text-white"
+              className={`py-2 ${
+                i === 5 || i === 6 ? "text-rose-500 font-bold bg-rose-50/30" : ""
               }`}
             >
               {w}
@@ -262,14 +260,14 @@ export function VehicleBooking() {
           ))}
         </div>
 
-        {/* Day grid */}
-        <div className="mt-2 grid grid-cols-7 gap-1.5" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        {/* 日曆網格 */}
+        <div className="mt-2 grid grid-cols-7 gap-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
             const weekend = col === 5 || col === 6
             
             if (day === null) return (
-              <div key={`empty-${idx}`} className="min-h-[110px]" aria-hidden="true" />
+              <div key={`empty-${idx}`} className="min-h-[100px]" aria-hidden="true" />
             )
             
             const today = new Date()
@@ -287,40 +285,37 @@ export function VehicleBooking() {
             return (
               <div
                 key={`${year}-${month}-${day}`}
-                className={`relative flex min-h-[110px] flex-col overflow-hidden rounded-md border-2 transition-all duration-200 ease-out
-                  hover:-translate-y-[2px] hover:shadow-md hover:z-10
+                className={`relative flex min-h-[100px] flex-col overflow-hidden rounded-lg border transition-all duration-150
                   ${
                     isToday
-                      ? "border-blue-600 ring-2 ring-blue-600/40 z-10"
+                      ? "border-slate-900 ring-1 ring-slate-900 z-10"
                       : booked
-                        ? "border-amber-500"
-                        : isOff
-                          ? "border-rose-300"
-                          : "border-[#bccc9a]"
-                  } 
-                  ${isOff ? "bg-rose-100" : "bg-white"}`}
+                        ? "border-amber-200 bg-amber-50/20"
+                        : "border-slate-100"
+                  } bg-white`}
               >
                 {/* 日曆格日期橫條 */}
-                <div className={`px-1 pt-0.5 pb-0.5 border-b-2 ${isOff ? "bg-rose-200 border-rose-300" : "bg-slate-100 border-slate-200"}`}>
-                  <div className="flex flex-col items-center">
-                    <span className={`text-sm font-black ${isOff ? "text-rose-700" : "text-slate-900"}`}>
-                      {day}
-                    </span>
-                  </div>
-                  <span className="block h-3 truncate text-center text-[9px] font-black leading-3 text-rose-600">
-                    {holiday ?? ""}
+                <div className="px-1.5 pt-1 pb-0.5 flex items-baseline justify-between">
+                  <span className={`text-sm font-bold ${
+                    isToday ? "text-slate-900" : isOff ? "text-rose-500" : "text-slate-700"
+                  }`}>
+                    {day}
                   </span>
+                  {holiday && (
+                    <span className="block text-[8px] font-medium scale-90 text-rose-400 truncate max-w-[32px]">
+                      {holiday}
+                    </span>
+                  )}
                 </div>
 
-                {/* AM / PM Slots */}
-                <div className="flex flex-1 flex-col">
+                {/* AM / PM 時段 */}
+                <div className="flex flex-1 flex-col justify-end p-0.5 gap-0.5">
                   <SlotArea
                     label="上午"
                     booker={am}
                     onBook={() => requestBook(day, "am")}
                     onCancel={() => requestCancel(day, "am", am)}
                   />
-                  <div className="h-px bg-slate-200" />
                   <SlotArea
                     label="下午"
                     booker={pm}
@@ -334,31 +329,30 @@ export function VehicleBooking() {
         </div>
       </section>
 
-      <p className="py-2 text-center text-xs font-semibold text-slate-500">
-        《左右滑動或點箭頭切換月份；點擊時段預約，取消需輸入管制密碼1234》
+      <p className="text-center text-[11px] font-medium text-slate-400">
+        左右滑動切換月份 ‧ 點擊時段預約 ‧ 取消密碼 1234
       </p>
 
       {/* Modal 彈窗 */}
       {pending && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-fade-in" onClick={closeModal}>
-          <div className="w-full max-w-xs rounded-xl border-2 border-slate-200 bg-white p-5 text-slate-800 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4" onClick={closeModal}>
+          <div className="w-full max-w-xs rounded-xl border border-slate-200 bg-white p-5 text-slate-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h2 className="flex items-center gap-1.5 text-base font-bold text-[#0f5132]">
-                <User className="size-4 shrink-0" />
+              <h2 className="text-sm font-bold text-slate-900">
                 {pending.kind === "book" ? "預約登記" : "取消預約"}
               </h2>
               <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600">
-                <X className="size-5" />
+                <X className="size-4" />
               </button>
             </div>
 
             {pending.kind === "book" ? (
               <>
-                <p className="mt-2.5 text-sm font-bold text-slate-600">
-                  預約 <span className="font-black text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span>，請選擇時段並輸入姓名。
+                <p className="mt-2.5 text-xs text-slate-500">
+                  日期：<span className="font-semibold text-slate-800">{`${year}/${month}/${pending.day}`}</span>
                 </p>
 
-                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                <div className="mt-3 grid grid-cols-3 gap-1">
                   {(["am", "pm", "full"] as BookMode[]).map((m) => {
                     const text = m === "am" ? "上午" : m === "pm" ? "下午" : "全天"
                     const amTaken = !!bookerOf(pending.day, "am")
@@ -374,12 +368,12 @@ export function VehicleBooking() {
                           setBookMode(m)
                           setError(false)
                         }}
-                        className={`rounded-md border-2 py-2 text-sm font-bold transition-colors ${
+                        className={`rounded-md border py-1.5 text-xs font-medium transition-colors ${
                           disabled
-                            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300 opacity-50"
+                            ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
                             : selected
-                              ? "border-amber-500 bg-amber-500 text-white"
-                              : "border-slate-200 bg-white text-[#0f5132] hover:bg-slate-50"
+                              ? "border-slate-900 bg-slate-950 text-white font-semibold"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                         }`}
                       >
                         {text}
@@ -388,7 +382,6 @@ export function VehicleBooking() {
                   })}
                 </div>
 
-                {/* 姓名輸入框 */}
                 <input
                   type="text"
                   autoFocus
@@ -399,16 +392,15 @@ export function VehicleBooking() {
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
                   placeholder="請輸入姓名"
-                  className="mt-3.5 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-base font-bold text-[#0f5132] outline-none focus:border-[#0f5132]"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-center text-sm font-medium text-slate-800 outline-none focus:border-slate-900"
                 />
-
-                {error && <p className="mt-1.5 text-xs font-bold text-rose-600">請輸入姓名！</p>}
+                {error && <p className="mt-1 text-[11px] font-medium text-rose-500">請輸入姓名</p>}
               </>
             ) : (
               <>
-                <p className="mt-2.5 text-sm font-bold text-slate-600">
-                  取消 <span className="font-black text-[#0f5132]">{`${year}/${month}/${pending.day}`}</span> 時段的預約：<br />
-                  <span className="font-black text-amber-900">{monthBookerName}</span>，請輸入管制密碼。
+                <p className="mt-2.5 text-xs text-slate-500 leading-normal">
+                  將取消 <span className="font-semibold text-slate-800">{`${year}/${month}/${pending.day}`}</span> 的預約：<br />
+                  使用者：<span className="font-semibold text-slate-900">{monthBookerName}</span>
                 </p>
                 <input
                   type="password"
@@ -420,31 +412,31 @@ export function VehicleBooking() {
                     setError(false)
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter") confirm() }}
-                  placeholder="請輸入密碼"
-                  className="mt-3.5 w-full rounded-md border-2 border-slate-200 bg-white px-3 py-2 text-center text-lg tracking-[0.4em] text-[#0f5132] outline-none focus:border-[#0f5132]"
+                  placeholder="輸入管制密碼"
+                  className="mt-3 w-full rounded-md border border-slate-200 bg-white px-3 py-1.5 text-center text-sm tracking-widest text-slate-800 outline-none focus:border-slate-900"
                 />
-                {error && <p className="mt-1.5 text-xs font-bold text-rose-600">密碼錯誤，請重新輸入。</p>}
+                {error && <p className="mt-1 text-[11px] font-medium text-rose-500">密碼錯誤</p>}
               </>
             )}
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex gap-1.5 border-t border-slate-100 pt-3">
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 rounded-md border-2 border-slate-200 bg-white py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
+                className="flex-1 rounded-md border border-slate-200 bg-white py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
               >
-                關閉
+                取消
               </button>
               <button
                 type="button"
                 onClick={confirm}
-                className={`flex-1 rounded-md py-2 text-sm font-black shadow-sm text-white ${
+                className={`flex-1 rounded-md py-1.5 text-xs font-semibold text-white shadow-sm ${
                   pending.kind === "book"
-                    ? "bg-[#0f5132] hover:bg-[#146c43]"
+                    ? "bg-slate-900 hover:bg-slate-800"
                     : "bg-rose-600 hover:bg-rose-700"
                 }`}
               >
-                {pending.kind === "book" ? "確認預約" : "確認取消"}
+                確認
               </button>
             </div>
           </div>
@@ -454,6 +446,7 @@ export function VehicleBooking() {
   )
 }
 
+/* 🛠️ SlotArea 元件：採用進階的隱形設計（Invisible Design）與現代化小標籤 */
 function SlotArea({
   label,
   booker,
@@ -471,24 +464,27 @@ function SlotArea({
       type="button"
       onClick={active ? onCancel : onBook}
       aria-pressed={active}
-      className={`flex flex-1 flex-col items-center justify-center px-0.5 py-1 text-xs font-bold transition-all duration-300 ease-in-out ${
-        active
-          ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-950 hover:from-amber-200 hover:to-amber-300 font-black shadow-inner"
-          : "text-[#0f5132] hover:bg-slate-200/60"
-      }`}
+      className={`group w-full flex items-center justify-between px-2 py-1 text-[11px] rounded transition-all
+        ${
+          active
+            ? "bg-slate-100 text-slate-800 font-medium hover:bg-rose-50 hover:text-rose-700"
+            : "text-slate-400 hover:bg-slate-50 hover:text-slate-700 border border-dashed border-slate-100 hover:border-slate-300"
+        }`}
     >
-      <span className="shrink-0 text-[11px] font-bold text-slate-600 leading-none">{label}</span>
+      {/* 狀態標籤 */}
+      <span className={`scale-90 origin-left tracking-tight ${active ? "text-slate-400 group-hover:text-rose-400" : "text-slate-300"}`}>
+        {label}
+      </span>
       
       {active ? (
-        <div className="w-full flex items-center justify-center min-h-[30px] pt-0.5">
-          <span className="w-full truncate px-0.5 text-center text-sm font-black tracking-tight text-amber-950">
-            {booker}
-          </span>
-        </div>
+        <span className="truncate max-w-[44px] text-right font-bold tracking-tight">
+          {booker}
+        </span>
       ) : (
-        <div className="flex items-center justify-center min-h-[30px] pt-0.5">
-          <span className="text-xs text-slate-400 font-bold">空</span>
-        </div>
+        /* 未預約時，平常隱形，Hover 或手機碰觸時才顯示微弱的預約字樣，極致專業感 */
+        <span className="opacity-0 group-hover:opacity-100 text-[10px] text-slate-400 font-medium transition-opacity">
+          登記
+        </span>
       )}
     </button>
   )
