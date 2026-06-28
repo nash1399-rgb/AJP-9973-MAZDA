@@ -35,9 +35,6 @@ export function VehicleBooking() {
   const [nameInput, setNameInput] = useState("")
   const [code, setCode] = useState("")
   const [error, setError] = useState(false)
-  
-  // 🏎️ 新增法拉利動畫狀態控制
-  const [showFerrari, setShowFerrari] = useState(false)
 
   const touchStartX = useRef<number | null>(null)
 
@@ -151,14 +148,6 @@ export function VehicleBooking() {
           )
         }
         await Promise.all(tasks)
-
-        // 🏎️ 預約登記成功，啟動法拉利特效
-        closeModal()
-        setShowFerrari(true)
-        setTimeout(() => {
-          setShowFerrari(false)
-        }, 1300) // 1.3 秒後動畫結束隱藏
-        return
       } else {
         if (code !== PASSCODE) {
           setError(true)
@@ -196,19 +185,9 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="relative mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100 overflow-x-hidden"
+      className="mx-auto flex w-full max-w-md flex-col gap-3 px-3 py-4 min-h-screen bg-[#0a0a0a] text-slate-100 overflow-x-hidden"
       style={{ fontFamily: "'Times New Roman', 'Microsoft JhengHei', '微軟正黑體', sans-serif" }}
     >
-      
-      {/* 🏎️ 法拉利跑過去的全螢幕噴射起動動畫 */}
-      {showFerrari && (
-        <div className="pointer-events-none fixed inset-x-0 top-1/3 z-50 flex items-center justify-start">
-          <div className="animate-[marquee_1.2s_ease-in-out_forward] text-5xl select-none filter drop-shadow-[0_4px_12px_rgba(239,68,68,0.6)]">
-            🏎️💨 <span className="text-xs font-black tracking-widest text-red-500 bg-black/80 px-2 py-0.5 rounded-full border border-red-500/30">FERRARI GO!</span>
-          </div>
-        </div>
-      )}
-
       {/* Header card */}
       <header className="rounded-xl border-2 border-[#a3cfbb]/30 bg-[#0f5132]/20 backdrop-blur-md px-5 py-4 shadow-lg transition-all duration-300 ease-in-out">
         <h1 className="text-balance text-lg font-black text-[#39ff14] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
@@ -228,7 +207,6 @@ export function VehicleBooking() {
           </div>
           <div className="text-xs font-semibold text-slate-300">下次保養里程數 129526 公里</div>
           <div className="text-xs font-semibold text-slate-300">下次汽車檢驗日期 2026 年 12 月 27 日</div>
-          {/* 🛠️ 已修正：將電話號碼成功換到下一行顯示 */}
           <div className="text-[11px] leading-relaxed text-slate-400 font-medium">
             保養廠：祥盛汽車 (新竹市經國路一段388之3號) <br />
             電話：03-5353897
