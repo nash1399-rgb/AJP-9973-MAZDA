@@ -183,22 +183,21 @@ export function VehicleBooking() {
 
   return (
     <div 
-      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#f8fafc] text-slate-900 overflow-x-hidden"
+      className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#f1f5f9] text-slate-900 overflow-x-hidden"
       style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
     >
-      {/* 🏛️ Header card：乾淨白底加微弱陰影，標準進階 SaaS 質感 */}
-      <header className="rounded-xl border border-slate-200/60 bg-white px-5 py-4 shadow-sm">
+      {/* 🏛️ Header card */}
+      <header className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
         <h1 className="text-balance text-base font-bold text-slate-900 tracking-tight">
           邑菖工程顧問有限公司－公務車預約系統
         </h1>
         <p className="mt-0.5 text-xs font-medium text-slate-400">線上即時公務車預約登記平台</p>
       </header>
 
-      {/* 🚗 License plate banner：高雅沉穩的莫蘭迪鐵灰綠，重塑文字粗細階層 */}
+      {/* 🚗 License plate banner */}
       <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-700 bg-[#334155] p-4 text-white shadow-sm">
-        {/* 左側：精緻化的文字階層 */}
         <div className="flex-1 flex flex-col gap-1 text-sm font-medium text-slate-300">
-          <div className="flex items-center gap-2 border-b border-slate-600/50 pb-1.5 mb-1.5">
+          <div className="flex items-center gap-2 border-b border-slate-600/60 pb-1.5 mb-1.5">
             <span className="text-base font-bold tracking-wide text-white">
               AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span>
             </span>
@@ -212,20 +211,19 @@ export function VehicleBooking() {
           </div>
         </div>
         
-        {/* 右側：縮小照片 */}
         <div className="w-[80px] h-[96px] shrink-0 overflow-hidden rounded-lg border border-slate-600 bg-neutral-800 shadow-sm">
           <img
             src="/images/ajp-9973.jpg"
             alt="公務車照片"
-            className="w-full h-full object-cover grayscale-[15%]"
+            className="w-full h-full object-cover grayscale-[10%]"
           />
         </div>
       </div>
 
-      {/* 📅 日曆主體外框：改為乾淨優雅的純白卡片，拋棄複雜的綠底 */}
+      {/* 📅 日曆主體外框 - 提高線條與對比度 */}
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         
-        {/* 月份切換標頭：深色極簡風格 */}
+        {/* 月份切換標頭 */}
         <div className="flex items-center justify-between rounded-lg bg-slate-900 px-2 py-2 shadow-sm">
           <button
             type="button"
@@ -246,13 +244,13 @@ export function VehicleBooking() {
           </button>
         </div>
 
-        {/* 禮拜標頭：低調淡灰底色 */}
-        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-50 text-center text-xs font-semibold text-slate-500 border border-slate-100">
+        {/* 禮拜標頭 - 加深灰色文字 */}
+        <div className="mt-3 grid grid-cols-7 overflow-hidden rounded-md bg-slate-100 text-center text-xs font-bold text-slate-600 border border-slate-200">
           {WEEKDAYS.map((w, i) => (
             <div
               key={w}
               className={`py-2 ${
-                i === 5 || i === 6 ? "text-rose-500 font-bold bg-rose-50/30" : ""
+                i === 5 || i === 6 ? "text-rose-600 bg-rose-50/50" : ""
               }`}
             >
               {w}
@@ -260,14 +258,14 @@ export function VehicleBooking() {
           ))}
         </div>
 
-        {/* 日曆網格 */}
+        {/* 日曆網格 - 平日邊框全面加深為 border-slate-200/90 */}
         <div className="mt-2 grid grid-cols-7 gap-1" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
           {cells.map((day, idx) => {
             const col = idx % 7
             const weekend = col === 5 || col === 6
             
             if (day === null) return (
-              <div key={`empty-${idx}`} className="min-h-[100px]" aria-hidden="true" />
+              <div key={`empty-${idx}`} className="min-h-[105px]" aria-hidden="true" />
             )
             
             const today = new Date()
@@ -285,31 +283,33 @@ export function VehicleBooking() {
             return (
               <div
                 key={`${year}-${month}-${day}`}
-                className={`relative flex min-h-[100px] flex-col overflow-hidden rounded-lg border transition-all duration-150
+                className={`relative flex min-h-[105px] flex-col overflow-hidden rounded-lg border transition-all duration-150
                   ${
                     isToday
-                      ? "border-slate-900 ring-1 ring-slate-900 z-10"
+                      ? "border-slate-900 ring-2 ring-slate-900/10 z-10 bg-slate-50/50"
                       : booked
-                        ? "border-amber-200 bg-amber-50/20"
-                        : "border-slate-100"
-                  } bg-white`}
+                        ? "border-amber-300 bg-amber-50/10"
+                        : isOff
+                          ? "border-rose-200 bg-rose-50/30"
+                          : "border-slate-200/90 bg-white"
+                  }`}
               >
                 {/* 日曆格日期橫條 */}
-                <div className="px-1.5 pt-1 pb-0.5 flex items-baseline justify-between">
-                  <span className={`text-sm font-bold ${
-                    isToday ? "text-slate-900" : isOff ? "text-rose-500" : "text-slate-700"
+                <div className="px-1.5 pt-1.5 pb-0.5 flex items-baseline justify-between">
+                  <span className={`text-sm font-extrabold ${
+                    isToday ? "text-slate-950 underline decoration-2 underline-offset-2" : isOff ? "text-rose-600" : "text-slate-800"
                   }`}>
                     {day}
                   </span>
                   {holiday && (
-                    <span className="block text-[8px] font-medium scale-90 text-rose-400 truncate max-w-[32px]">
+                    <span className="block text-[8px] font-bold scale-90 text-rose-500 truncate max-w-[32px]">
                       {holiday}
                     </span>
                   )}
                 </div>
 
                 {/* AM / PM 時段 */}
-                <div className="flex flex-1 flex-col justify-end p-0.5 gap-0.5">
+                <div className="flex flex-1 flex-col justify-end p-1 gap-1">
                   <SlotArea
                     label="上午"
                     booker={am}
@@ -446,7 +446,7 @@ export function VehicleBooking() {
   )
 }
 
-/* 🛠️ SlotArea 元件：採用進階的隱形設計（Invisible Design）與現代化小標籤 */
+/* 🛠️ SlotArea 元件 - 大幅強化已被預約與空白時段的文字對比度 */
 function SlotArea({
   label,
   booker,
@@ -464,26 +464,27 @@ function SlotArea({
       type="button"
       onClick={active ? onCancel : onBook}
       aria-pressed={active}
-      className={`group w-full flex items-center justify-between px-2 py-1 text-[11px] rounded transition-all
+      className={`group w-full flex items-center justify-between px-1.5 py-1 text-[11px] rounded transition-all border
         ${
           active
-            ? "bg-slate-100 text-slate-800 font-medium hover:bg-rose-50 hover:text-rose-700"
-            : "text-slate-400 hover:bg-slate-50 hover:text-slate-700 border border-dashed border-slate-100 hover:border-slate-300"
+            ? "bg-amber-100/80 border-amber-200 text-amber-950 font-bold hover:bg-rose-100 hover:border-rose-200 hover:text-rose-700 shadow-sm"
+            : "border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800"
         }`}
     >
-      {/* 狀態標籤 */}
-      <span className={`scale-90 origin-left tracking-tight ${active ? "text-slate-400 group-hover:text-rose-400" : "text-slate-300"}`}>
+      {/* 狀態標籤（上午/下午）：在非作用時也保持一定的灰度清晰度 */}
+      <span className={`scale-90 origin-left tracking-tight font-medium ${active ? "text-amber-800/70 group-hover:text-rose-600/70" : "text-slate-400"}`}>
         {label}
       </span>
       
       {active ? (
-        <span className="truncate max-w-[44px] text-right font-bold tracking-tight">
+        // 姓名：加粗放大，顏色使用高對比深琥珀色
+        <span className="truncate max-w-[46px] text-right font-black tracking-tight text-slate-950">
           {booker}
         </span>
       ) : (
-        /* 未預約時，平常隱形，Hover 或手機碰觸時才顯示微弱的預約字樣，極致專業感 */
-        <span className="opacity-0 group-hover:opacity-100 text-[10px] text-slate-400 font-medium transition-opacity">
-          登記
+        // 空白檔：平時呈現微弱的灰色「+」或「登記」，更清晰好點擊
+        <span className="text-[9px] text-slate-300 group-hover:text-slate-500 font-bold transition-colors">
+          +
         </span>
       )}
     </button>
