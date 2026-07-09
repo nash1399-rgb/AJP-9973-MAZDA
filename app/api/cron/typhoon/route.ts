@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       targetHtmlBlock = html.substring(hsinchuIndex, hsinchuIndex + 300)
     }
 
-    // 3. 如果判定有新竹區域停止上班上課的字眼
+    // 3. 如果判定有新竹縣停止上班上課的字眼
     if (targetHtmlBlock.includes("停止上班") || targetHtmlBlock.includes("停止上課")) {
       
       // 4. 🚀 修正日期邏輯：政府晚上公告的是「明天」的颱風假
