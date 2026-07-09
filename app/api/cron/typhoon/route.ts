@@ -17,9 +17,9 @@ export async function GET(request: Request) {
     const response = await fetch(DGPA_URL, { cache: 'no-store' })
     const html = await response.text()
 
-    // 2. 檢查是否有出現新竹縣或新竹市停班課關鍵字
+    // 2. 檢查是否有出現新竹縣或竹北市停班課關鍵字
     const hsinchuIndex = html.indexOf("新竹縣")
-    const hsinchuCityIndex = html.indexOf("新竹市")
+    const hsinchuCityIndex = html.indexOf("竹北市")
     
     let targetHtmlBlock = ""
     if (hsinchuIndex !== -1) {
