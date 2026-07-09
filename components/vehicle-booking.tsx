@@ -26,7 +26,7 @@ type Pending =
   | { kind: "cancel"; day: number; slot: Slot; name: string }
 
 export function VehicleBooking() {
-  // 1. 初始化自動獲取當前年份與月份
+  // 📅 自動獲取當前主機時間的年份與月份
   const [year, setYear] = useState(() => new Date().getFullYear())
   const [month, setMonth] = useState(() => new Date().getMonth() + 1)
   const [bookings, setBookings] = useState<Record<string, BookingInfo>>({})
@@ -40,7 +40,7 @@ export function VehicleBooking() {
 
   const touchStartX = useRef<number | null>(null)
 
-  // Firebase Realtime Sync - 監聽所有預約與爬蟲寫入的停班資料
+  // Firebase Realtime Sync - 監聽所有預約與爬蟲自動寫入的停班資料
   useEffect(() => {
     const q = query(collection(db, "vehicle_bookings"), orderBy("createdAt", "desc"))
     const unsub = onSnapshot(q, (snap) => {
@@ -77,12 +77,10 @@ export function VehicleBooking() {
     return bookings[keyOf(day, slot)]?.name || ""
   }
 
-  // 修正型別與取值邏輯
   function docIdOf(day: number, slot: "am" | "pm" | "full") {
     return bookings[keyOf(day, slot)]?.docId || ""
   }
 
-  // 切換月份
   function changeMonth(delta: number) {
     let m = month + delta
     let y = year
@@ -92,6 +90,7 @@ export function VehicleBooking() {
   }
 
   function onTouchStart(e: React.TouchEvent) { touchStartX.current = e.touches[0].clientX }
+
   function onTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
@@ -99,7 +98,7 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
-  // 檢查是否為過去的日期
+  // 🔒 檢查是否為過去的日期邏輯
   function isPastDate(targetDay: number) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -107,18 +106,27 @@ export function VehicleBooking() {
     return target < today
   }
 
+  // 🔒 預約點擊觸發：加入過去日期阻擋
   function requestBook(day: number, defaultSlot: "am" | "pm") {
     setNameInput("")
     setError(false)
     setErrorMessage("")
+    
+    if (isPastDate(day)) {
+      setError(true)
+      setErrorMessage("不能預約過去的日期")
+    }
+    
     setBookMode(defaultSlot)
     setPending({ kind: "book", day })
   }
 
+  // 🔒 取消點擊觸發：加入過去日期阻擋
   function requestCancel(day: number, slot: "am" | "pm", name: string) {
     setCode("")
     setError(false)
     setErrorMessage("")
+    
     if (isPastDate(day)) {
       setError(true)
       setErrorMessage("不能刪除過去的預約紀錄")
@@ -130,6 +138,8 @@ export function VehicleBooking() {
     if (!pending) return
     try {
       if (pending.kind === "book") {
+        if (isPastDate(pending.day)) return // 安全鎖：防過去日期送出
+        
         const name = nameInput.trim()
         if (!name) { setError(true); setErrorMessage("請輸入姓名"); return }
         const tasks: Promise<any>[] = []
@@ -142,8 +152,9 @@ export function VehicleBooking() {
         await Promise.all(tasks)
         closeModal()
       } else if (pending.kind === "cancel") {
-        if (isPastDate(pending.day)) return
+        if (isPastDate(pending.day)) return // 安全鎖：防歷史紀錄送出
         if (code !== PASSCODE) { setError(true); setErrorMessage("密碼錯誤"); return }
+        
         const amName = bookerOf(pending.day, "am")
         const pmName = bookerOf(pending.day, "pm")
         const amId = docIdOf(pending.day, "am")
@@ -155,7 +166,6 @@ export function VehicleBooking() {
           if (pmId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", pmId)))
         } else {
           const targetSlot = pending.slot === "full" ? "am" : pending.slot
-          // 🛠️ 這裡已成功修正變數未定義 (TDZ) 的 Bug：將第二個參數改為剛剛取好的 targetSlot
           const targetDocId = docIdOf(pending.day, targetSlot)
           if (targetDocId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", targetDocId)))
         }
@@ -178,7 +188,10 @@ export function VehicleBooking() {
   const monthBookerName = pending?.kind === "cancel" ? pending.name : ""
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5 min-h-screen bg-[#e2e8f0] text-slate-900 overflow-x-hidden"
+         style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}>
+      
+      {/* 🏛️ 燕麥色標頭卡片 */}
       <header className="rounded-xl border border-[#d5cdc5] bg-[#e2dcd5] px-5 py-4 shadow-sm">
         <h1 className="text-balance text-base font-bold text-[#1e293b] tracking-tight">邑菖工程顧問有限公司－公務車預約系統</h1>
         <p className="mt-0.5 text-xs font-semibold text-slate-500">線上即時公務車預約登記平台</p>
@@ -187,7 +200,7 @@ export function VehicleBooking() {
       {/* 🚗 車牌與保養資訊 */}
       <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-[#1e293b] p-4 text-white shadow-md">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 flex flex-col gap-1.5 text-base font-bold text-slate-100">
+          <div className="flex-1 flex flex-col gap-1.5 text-base font-bold text-slate-100 leading-relaxed">
             <div className="flex items-center gap-2 border-b border-slate-700 pb-1.5 mb-0.5">
               <span className="text-base font-bold tracking-wide text-[#39ff14]">AJP-9973 <span className="text-xs font-normal text-slate-400">（95無鉛）</span></span>
               <Fuel className="size-4.5 text-slate-400 shrink-0" />
@@ -199,7 +212,7 @@ export function VehicleBooking() {
             <img src="/images/ajp-9973.jpg" alt="公務車照片" className="w-full h-full object-cover" />
           </div>
         </div>
-        <div className="border-t border-slate-700/60 pt-2.5 mt-0.5 text-base font-bold text-slate-200 flex flex-col gap-0.5">
+        <div className="border-t border-slate-700/60 pt-2.5 mt-0.5 text-base font-bold text-slate-200 leading-relaxed flex flex-col gap-0.5">
           <div>保養廠：祥盛汽車 <span className="font-normal text-slate-400 text-sm">(新竹市經國路一段388之3號)</span></div>
           <div className="text-amber-400">電話：03-5353897</div>
         </div>
@@ -227,7 +240,7 @@ export function VehicleBooking() {
             const holiday = getHolidayName(year, month, day)
             const isOff = weekend || !!holiday
             
-            // 🔴 讀取 Firebase 中由爬蟲寫入的停班資訊
+            // 🔴 讀取由後端爬蟲全自動同步寫入的颱風假資料
             const typhoonMsg = bookerOf(day, "full")
             const isTyphoon = !!typhoonMsg && typhoonMsg.includes("停班停課")
 
@@ -240,7 +253,7 @@ export function VehicleBooking() {
                 key={`${year}-${month}-${day}`}
                 className={`relative flex min-h-[105px] flex-col overflow-hidden rounded-lg border transition-all duration-150
                   ${isTyphoon
-                    ? "border-red-600 ring-2 ring-red-500/30 bg-red-50/50 z-10" 
+                    ? "border-red-600 ring-2 ring-red-500/30 bg-red-50/50 z-10"
                     : isToday
                       ? "border-slate-950 ring-2 ring-slate-950/20 z-10 bg-slate-100/50"
                       : booked
@@ -250,6 +263,7 @@ export function VehicleBooking() {
                           : "border-slate-300 bg-white"
                   }`}
               >
+                {/* 日曆日期與節日換行區 */}
                 <div className={`px-1.5 pt-1 pb-1 flex flex-col items-start justify-start border-b gap-0.5 ${isTyphoon ? "bg-red-100 border-red-200" : isOff ? "bg-rose-100/40 border-rose-200" : "bg-slate-50 border-slate-200"}`}>
                   <div className="w-full flex items-center justify-between">
                     <span className={`text-sm font-extrabold leading-none ${isTyphoon ? "text-red-700" : isToday ? "text-slate-950 underline decoration-2 font-black" : isOff ? "text-rose-600" : "text-slate-800"}`}>{day}</span>
@@ -258,6 +272,7 @@ export function VehicleBooking() {
                   {holiday && !isTyphoon && <span className="block text-[9px] font-extrabold text-rose-700 text-left truncate">{holiday}</span>}
                 </div>
 
+                {/* 下半部時段預約或大紅颱風公告塊 */}
                 <div className="flex flex-1 flex-col justify-end p-1 gap-1">
                   {isTyphoon ? (
                     <div className="w-full h-full flex flex-col items-center justify-center p-1 rounded border border-red-300 bg-red-100/80 text-red-950 text-center select-none">
@@ -292,34 +307,47 @@ export function VehicleBooking() {
             {pending.kind === "book" ? (
               <>
                 <p className="mt-2.5 text-xs text-slate-500">日期：<span className="font-semibold text-slate-800">{`${year}/${month}/${pending.day}`}</span></p>
-                <div className="mt-3 grid grid-cols-3 gap-1">
-                  {(["am", "pm", "full"] as BookMode[]).map((m) => {
-                    const text = m === "am" ? "上午" : m === "pm" ? "下午" : "全天"
-                    const amTaken = !!bookerOf(pending.day, "am")
-                    const pmTaken = !!bookerOf(pending.day, "pm")
-                    const disabled = m === "full" ? amTaken || pmTaken : m === "am" ? amTaken : pmTaken
-                    return (
-                      <button
-                        key={m} type="button" disabled={disabled} onClick={() => { setBookMode(m); setError(false); }}
-                        className={`rounded-md border py-1.5 text-xs font-medium ${disabled ? "cursor-not-allowed opacity-50 bg-slate-50 text-slate-300" : bookMode === m ? "border-slate-900 bg-slate-950 text-white font-semibold" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
-                      >
-                        {text}
-                      </button>
-                    )
-                  })}
-                </div>
-                <input
-                  type="text" autoFocus value={nameInput} onChange={(e) => { setNameInput(e.target.value); setError(false); }}
-                  onKeyDown={(e) => { if (e.key === "Enter") confirm() }} placeholder="請輸入姓名"
-                  className="mt-3 w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-center text-sm font-medium outline-none focus:border-slate-900"
-                />
-                {error && <p className="mt-1 text-[11px] font-medium text-rose-500">{errorMessage || "請輸入姓名"}</p>}
+                
+                {/* 🔒 點選過去日期的警告面板 */}
+                {isPastDate(pending.day) ? (
+                  <div className="mt-4 rounded-md bg-rose-50 border border-rose-200 p-2.5 text-center">
+                    <p className="text-xs font-semibold text-rose-600">{errorMessage || "不能預約過去的日期"}</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mt-3 grid grid-cols-3 gap-1">
+                      {(["am", "pm", "full"] as BookMode[]).map((m) => {
+                        const text = m === "am" ? "上午" : m === "pm" ? "下午" : "全天"
+                        const amTaken = !!bookerOf(pending.day, "am")
+                        const pmTaken = !!bookerOf(pending.day, "pm")
+                        const disabled = m === "full" ? amTaken || pmTaken : m === "am" ? amTaken : pmTaken
+                        return (
+                          <button
+                            key={m} type="button" disabled={disabled} onClick={() => { setBookMode(m); setError(false); }}
+                            className={`rounded-md border py-1.5 text-xs font-medium ${disabled ? "cursor-not-allowed opacity-50 bg-slate-50 text-slate-300" : bookMode === m ? "border-slate-900 bg-slate-950 text-white font-semibold" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}
+                          >
+                            {text}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <input
+                      type="text" autoFocus value={nameInput} onChange={(e) => { setNameInput(e.target.value); setError(false); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") confirm() }} placeholder="請輸入姓名"
+                      className="mt-3 w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-center text-sm font-medium outline-none focus:border-slate-900"
+                    />
+                    {error && <p className="mt-1 text-[11px] font-medium text-rose-500">{errorMessage || "請輸入姓名"}</p>}
+                  </>
+                )}
               </>
             ) : (
               <>
                 <p className="mt-2.5 text-xs text-slate-500 leading-normal">將取消 <span className="font-semibold text-slate-800">{`${year}/${month}/${pending.day}`}</span> 的預約：<br />使用者：<span className="font-semibold text-slate-900">{monthBookerName}</span></p>
+                {/* 🔒 刪除過去日期的警告面板 */}
                 {isPastDate(pending.day) ? (
-                  <div className="mt-4 rounded-md bg-rose-50 border border-rose-200 p-2 text-center"><p className="text-xs font-semibold text-rose-600">{errorMessage}</p></div>
+                  <div className="mt-4 rounded-md bg-rose-50 border border-rose-200 p-2 text-center">
+                    <p className="text-xs font-semibold text-rose-600">{errorMessage || "不能刪除過去的預約紀錄"}</p>
+                  </div>
                 ) : (
                   <>
                     <input
@@ -333,10 +361,15 @@ export function VehicleBooking() {
               </>
             )}
 
+            {/* 按鈕組：過去的日期會安全隱藏「確認」按鈕 */}
             <div className="mt-4 flex gap-1.5 border-t border-slate-200 pt-3">
-              <button type="button" onClick={closeModal} className="flex-1 rounded-md border border-slate-300 bg-white py-1.5 text-xs font-medium text-slate-600">{isPastDate(pending.day) && pending.kind === "cancel" ? "關閉" : "取消"}</button>
-              {!(isPastDate(pending.day) && pending.kind === "cancel") && (
-                <button type="button" onClick={confirm} className={`flex-1 rounded-md py-1.5 text-xs font-semibold text-white ${pending.kind === "book" ? "bg-slate-900" : "bg-rose-600"}`}>確認</button>
+              <button type="button" onClick={closeModal} className="flex-1 rounded-md border border-slate-300 bg-white py-1.5 text-xs font-medium text-slate-600">
+                {isPastDate(pending.day) ? "關閉" : "取消"}
+              </button>
+              {!isPastDate(pending.day) && (
+                <button type="button" onClick={confirm} className={`flex-1 rounded-md py-1.5 text-xs font-semibold text-white ${pending.kind === "book" ? "bg-slate-900" : "bg-rose-600"}`}>
+                  確認
+                </button>
               )}
             </div>
           </div>
@@ -354,7 +387,11 @@ function SlotArea({ label, booker, onBook, onCancel }: { label: string; booker: 
       className={`group w-full flex items-center justify-between px-1 py-1 text-[11px] rounded transition-all border min-h-[26px] ${active ? "bg-amber-200 border-amber-300 text-amber-950 font-bold hover:bg-rose-100 hover:text-rose-700 shadow-sm" : "border-slate-200/60 text-slate-600 hover:bg-slate-50"}`}
     >
       <span className={`scale-75 origin-left font-semibold ${active ? "text-amber-900/80 group-hover:text-rose-700" : "text-slate-500"}`}>{label}</span>
-      {active ? <span className="flex-1 text-right font-black tracking-tighter text-slate-950 break-all text-[11px]">{booker}</span> : <span className="text-[10px] text-slate-400 group-hover:text-slate-600 font-bold">+</span>}
+      {active ? (
+        <span className="flex-1 text-right font-black tracking-tighter text-slate-950 break-all text-[11px] leading-none pl-0.5">{booker}</span>
+      ) : (
+        <span className="text-[10px] text-slate-400 group-hover:text-slate-600 font-bold">+</span>
+      )}
     </button>
   )
 }
