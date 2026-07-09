@@ -26,6 +26,7 @@ type Pending =
   | { kind: "cancel"; day: number; slot: Slot; name: string }
 
 export function VehicleBooking() {
+  // 1. 初始化自動獲取當前年份與月份
   const [year, setYear] = useState(() => new Date().getFullYear())
   const [month, setMonth] = useState(() => new Date().getMonth() + 1)
   const [bookings, setBookings] = useState<Record<string, BookingInfo>>({})
@@ -76,10 +77,12 @@ export function VehicleBooking() {
     return bookings[keyOf(day, slot)]?.name || ""
   }
 
+  // 修正型別與取值邏輯
   function docIdOf(day: number, slot: "am" | "pm" | "full") {
     return bookings[keyOf(day, slot)]?.docId || ""
   }
 
+  // 切換月份
   function changeMonth(delta: number) {
     let m = month + delta
     let y = year
@@ -96,6 +99,7 @@ export function VehicleBooking() {
     touchStartX.current = null
   }
 
+  // 檢查是否為過去的日期
   function isPastDate(targetDay: number) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -151,7 +155,8 @@ export function VehicleBooking() {
           if (pmId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", pmId)))
         } else {
           const targetSlot = pending.slot === "full" ? "am" : pending.slot
-          const targetDocId = docIdOf(pending.day, targetDocId)
+          // 🛠️ 這裡已成功修正變數未定義 (TDZ) 的 Bug：將第二個參數改為剛剛取好的 targetSlot
+          const targetDocId = docIdOf(pending.day, targetSlot)
           if (targetDocId) deleteTasks.push(deleteDoc(doc(db, "vehicle_bookings", targetDocId)))
         }
         await Promise.all(deleteTasks)
