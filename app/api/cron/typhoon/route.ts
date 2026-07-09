@@ -6,7 +6,7 @@ import { collection, addDoc, getDocs, query, where } from "firebase/firestore"
 const DGPA_URL = "https://www.dgpa.gov.tw/nds.html"
 
 export async function GET(request: Request) {
-  // 驗證是否為 Vercel Cron 安全請求 (在本地測試時，您可以暫時註解這段)
+  // 驗證是否為 Vercel Cron 安全請求
   const authHeader = request.headers.get('authorization')
   if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new NextResponse('Unauthorized', { status: 401 })
@@ -17,31 +17,34 @@ export async function GET(request: Request) {
     const response = await fetch(DGPA_URL, { cache: 'no-store' })
     const html = await response.text()
 
-    // 2. 檢查是否有出現新竹縣或竹北市停班課關鍵字
+    // 2. 檢查是否有出現新竹縣停班課關鍵字 (政府官方網頁只會寫「新竹縣」，不寫竹北市)
     const hsinchuIndex = html.indexOf("新竹縣")
-    const hsinchuCityIndex = html.indexOf("竹北市")
     
     let targetHtmlBlock = ""
     if (hsinchuIndex !== -1) {
+      // 擷取新竹縣欄位後方 300 個字元的公告內容
       targetHtmlBlock = html.substring(hsinchuIndex, hsinchuIndex + 300)
-    } else if (hsinchuCityIndex !== -1) {
-      targetHtmlBlock = html.substring(hsinchuCityIndex, hsinchuCityIndex + 300)
     }
 
     // 3. 如果判定有新竹區域停止上班上課的字眼
     if (targetHtmlBlock.includes("停止上班") || targetHtmlBlock.includes("停止上課")) {
       
-      // 4. 解析當前時間與可能的颱風名稱
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = today.getMonth() + 1
-      const day = today.getDate()
+      // 4. 🚀 修正日期邏輯：政府晚上公告的是「明天」的颱風假
+      const targetDate = new Date()
+      // 如果目前執行時間是晚上 6 點 (18點) 之後，代表公告的是明天，日期自動 +1
+      if (targetDate.getHours() >= 18) {
+        targetDate.setDate(targetDate.getDate() + 1)
+      }
+
+      const year = targetDate.getFullYear()
+      const month = targetDate.getMonth() + 1
+      const day = targetDate.getDate()
       
-      // 從 HTML 內容粗略抓取颱風名字，若抓不到則預設為「颱風」
+      // 從 HTML 內容粗略抓取颱風名字
       let typhoonName = "颱風"
       const match = html.match(/（(.*?)颱風）/) || html.match(/(.*?)颱風/)
       if (match && match[1]) {
-        typhoonName = match[1].trim().substring(0, 4) // 截取前4個字
+        typhoonName = match[1].trim().substring(0, 4)
       }
 
       const keyName = `${typhoonName} 停班停課`
@@ -57,7 +60,7 @@ export async function GET(request: Request) {
       const querySnapshot = await getDocs(q)
 
       if (querySnapshot.empty) {
-        // 6. 如果當天還沒有停班紀錄，自動寫入 Firebase 的全天 (full) 欄位
+        // 6. 自動寫入 Firebase 的全天 (full) 欄位
         await addDoc(collection(db, "vehicle_bookings"), {
           year,
           month,
@@ -66,9 +69,9 @@ export async function GET(request: Request) {
           name: keyName,
           createdAt: Date.now()
         })
-        return NextResponse.json({ success: true, message: `已自動同步並建立：${keyName}` })
+        return NextResponse.json({ success: true, message: `已自動同步並建立 ${year}/${month}/${day} 的紀錄：${keyName}` })
       }
-      return NextResponse.json({ success: true, message: "今天已同步過停班資訊，跳過寫入" })
+      return NextResponse.json({ success: true, message: `今天已同步過 ${year}/${month}/${day} 停班資訊，跳過寫入` })
     }
 
     return NextResponse.json({ success: true, message: "目前新竹地區照常上班上課" })
